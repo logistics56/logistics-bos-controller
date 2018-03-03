@@ -1,0 +1,24 @@
+# IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# OSX
+.DS_Store
+
+# Scripts
+*.sh
+
+# Maven
+target
+
+# Other
+*.doc
+local_history.patch
+.svn
