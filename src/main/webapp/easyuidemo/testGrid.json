@@ -1,7 +1,0 @@
-{
-	"total": 100,
-	"rows" : [
-		{"id":1,"name":"空调","person":"董小姐","station":"格力","salary":"9000","telephone":"18888888888","age":25,"sex":"female"},
-		{"id":1,"name":"手机","person":"雷军","station":"小米","salary":"10000","telephone":"18888888889","age":25,"sex":"male"}
-	]
-}

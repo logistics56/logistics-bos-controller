@@ -1,1 +1,0 @@
-localHandler({"result":"一点数据"});
