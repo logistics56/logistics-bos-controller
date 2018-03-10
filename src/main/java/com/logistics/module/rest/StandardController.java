@@ -1,5 +1,6 @@
 package com.logistics.module.rest;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,29 @@ public class StandardController {
 		response.setTotal(total);
 		response.setRows(rows);
 		
+		return response;
+	}
+	
+	@RequestMapping(value = "/saveData", method = { RequestMethod.POST })
+	public BaseResponse saveData(@RequestBody StandardDTO ref){
+		BaseResponse response = new BaseResponse();
+		int num= 0;
+		if(ref.getcId() == null){
+			int id = standardService.queryMaxId() + 1;
+			ref.setcId(id);
+			ref.setcOperatingTime(new Date());
+			num = standardService.insertSelective(ref);
+		}else{
+			ref.setcOperatingTime(new Date());
+			num = standardService.updateByPrimaryKey(ref);
+		}
+		if(num == 1){
+			response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+			response.setResult(ResponseCode.SUCCESS.getCode());
+		}else{
+			response.setErrorMsg(ResponseCode.FAILED.getMsg());
+			response.setResult(ResponseCode.FAILED.getCode());
+		}
 		return response;
 	}
 
