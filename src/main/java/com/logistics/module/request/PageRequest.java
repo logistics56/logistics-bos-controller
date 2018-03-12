@@ -5,7 +5,7 @@ package com.logistics.module.request;
 * @version 创建时间：2018年3月10日 下午12:33:45
 * 
 */
-public class StandardRequest {
+public class PageRequest {
 	
 	private int page;
 	

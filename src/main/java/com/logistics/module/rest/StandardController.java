@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.logistics.module.dto.StandardDTO;
 import com.logistics.module.enums.ResponseCode;
-import com.logistics.module.request.StandardRequest;
+import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.StandardService;
@@ -30,7 +30,7 @@ public class StandardController {
 	StandardService standardService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
-	public PageResponse queryPageData(StandardRequest ref){
+	public PageResponse queryPageData(PageRequest ref){
 		PageResponse response = new PageResponse();
 		
 		int total = standardService.queryTotal();
