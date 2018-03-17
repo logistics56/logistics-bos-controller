@@ -64,5 +64,14 @@ public class StandardController {
 		}
 		return response;
 	}
+	
+	@RequestMapping(value = "/queryAll", method = { RequestMethod.POST })
+	public List<StandardDTO> queryAll(){
+		PageResponse response = new PageResponse();
+		
+		List<StandardDTO> rows = standardService.queryAll();
+		
+		return rows;
+	}
 
 }
