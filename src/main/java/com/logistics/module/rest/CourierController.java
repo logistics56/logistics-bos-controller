@@ -88,7 +88,6 @@ public class CourierController {
 	@RequestMapping(value = "/saveData", method = { RequestMethod.POST })
 	public BaseResponse saveData(@RequestBody CourierDTO ref){
 		BaseResponse response = new BaseResponse();
-		System.out.println(ref.toString());
 		int num= 0;
 		if(ref.getcId() == null){
 			int id = courierService.queryMaxId() + 1;
