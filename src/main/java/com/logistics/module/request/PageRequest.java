@@ -10,6 +10,8 @@ public class PageRequest {
 	private int page;
 	
 	private int rows;
+	
+	private String cCourierNum;
 
 	public int getPage() {
 		return page;
@@ -25,6 +27,14 @@ public class PageRequest {
 
 	public void setRows(int rows) {
 		this.rows = rows;
+	}
+
+	public String getcCourierNum() {
+		return cCourierNum;
+	}
+
+	public void setcCourierNum(String cCourierNum) {
+		this.cCourierNum = cCourierNum;
 	}
 	
 	
