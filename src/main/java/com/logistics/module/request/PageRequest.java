@@ -12,6 +12,8 @@ public class PageRequest {
 	private int rows;
 	
 	private String cCourierNum;
+	
+	private String searchStr;
 
 	public int getPage() {
 		return page;
@@ -35,6 +37,14 @@ public class PageRequest {
 
 	public void setcCourierNum(String cCourierNum) {
 		this.cCourierNum = cCourierNum;
+	}
+
+	public String getSearchStr() {
+		return searchStr;
+	}
+
+	public void setSearchStr(String searchStr) {
+		this.searchStr = searchStr;
 	}
 	
 	
