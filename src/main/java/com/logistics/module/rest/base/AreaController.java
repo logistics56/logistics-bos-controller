@@ -1,20 +1,7 @@
-package com.logistics.module.rest;
+package com.logistics.module.rest.base;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -27,9 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.logistics.module.dto.AreaDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.CourierRequest;
-import com.logistics.module.request.FileImportRequest;
 import com.logistics.module.request.PageRequest;
-import com.logistics.module.response.CourierResponse;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.AreaService;
@@ -48,10 +33,6 @@ public class AreaController {
 
 	@Autowired
 	AreaService areaService;
-
-	private static Logger logger = Logger.getLogger(AreaController.class);
-	private final static String xls = "xls";
-	private final static String xlsx = "xlsx";
 
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref) {
@@ -136,8 +117,6 @@ public class AreaController {
 
 	@RequestMapping(value = "/fileImport", method = { RequestMethod.POST })
 	public int fileImport(MultipartFile file) throws Exception {
-		BaseResponse response = new BaseResponse();
-
 		// 判断文件是否存在
 		if (null == file) {
 			return ResponseCode.FAILED.getCode();

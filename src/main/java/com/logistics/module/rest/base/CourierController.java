@@ -1,4 +1,4 @@
-package com.logistics.module.rest;
+package com.logistics.module.rest.base;
 
 import java.util.ArrayList;
 import java.util.Date;
