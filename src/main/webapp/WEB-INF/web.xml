@@ -43,7 +43,6 @@
 		<load-on-startup>1</load-on-startup>
 		<async-supported>true</async-supported>
 		<multipart-config>
-			<location>/temp</location>
 			<max-file-size>1048576</max-file-size>
 			<max-request-size>2097152</max-request-size>
 			<file-size-threshold>524288</file-size-threshold>
