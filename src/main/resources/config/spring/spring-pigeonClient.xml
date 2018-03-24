@@ -98,4 +98,18 @@
 		<property name="timeoutRetry" value="false" />
 		<property name="retries" value="1" />
 	</bean>
+	
+	<bean id="subAreaService"
+		class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
+		init-method="init">
+		<property name="url"
+			value="http://service.lizhen.com/logistics-bos-service/subAreaService_1.0.0" />
+		<property name="interfaceName" value="com.logistics.module.service.SubAreaService" />
+		<property name="timeout" value="5000" />
+		<property name="serialize" value="hessian" />
+		<property name="callType" value="sync" />
+		<property name="cluster" value="failfast" />
+		<property name="timeoutRetry" value="false" />
+		<property name="retries" value="1" />
+	</bean>
 </beans>

@@ -1,7 +1,9 @@
 package com.logistics.module.rest.base;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -12,41 +14,75 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.logistics.module.dto.AreaDTO;
+import com.logistics.module.dto.SubAreaDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.CourierRequest;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.PageResponse;
+import com.logistics.module.response.SubAreaResponse;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.AreaService;
+import com.logistics.module.service.SubAreaService;
 import com.logistics.module.util.POIUtil;
 import com.logistics.module.util.PinYin4jUtils;
 
 /**
- *
- * @author 李振 E-mail:lizhn95@163.com
- * @version 创建时间：2018年3月18日 上午11:06:08
- * 
- */
+*
+* @author 李振        E-mail:lizhn95@163.com
+* @version 创建时间：2018年3月24日 下午12:58:52
+* 
+*/
 @RestController
-@RequestMapping("/area")
-public class AreaController {
-
+@RequestMapping("/subArea")
+public class SubAreaController {
+	
+	@Autowired
+	SubAreaService subAreaService;
+	
 	@Autowired
 	AreaService areaService;
-
+	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref) {
 		PageResponse response = new PageResponse();
 		if (StringUtils.isEmpty(ref.getSearchStr())) {
-			int total = areaService.queryTotal();
+			int total = subAreaService.queryTotal();
 			int pageNum = (ref.getPage() - 1) * ref.getRows();
-			List<AreaDTO> rows = areaService.queryByPage(pageNum, ref.getRows());
+			List<SubAreaDTO> rows1 = subAreaService.queryByPage(pageNum, ref.getRows());
+			List<SubAreaResponse> rows = new ArrayList<SubAreaResponse>();
+			if(CollectionUtils.isEmpty(rows1)){
+				return response;
+			}
+			for (SubAreaDTO r : rows1) {
+				AreaDTO area = areaService.selectByPrimaryKey(r.getcAreaId());
+				if(area == null){
+					return response;
+				}
+				SubAreaResponse subAreaResponse = new SubAreaResponse();
+				BeanUtils.copyProperties(r, subAreaResponse);
+				subAreaResponse.setArea(area);
+				rows.add(subAreaResponse);
+			}
 			response.setTotal(total);
 			response.setRows(rows);
 		} else {
-			int total = areaService.queryTotalByKeyword(ref.getSearchStr());
+			int total = subAreaService.queryTotalByKeyword(ref.getSearchStr());
 			int pageNum = (ref.getPage() - 1) * ref.getRows();
-			List<AreaDTO> rows = areaService.queryByKeyword(ref.getSearchStr(), pageNum, ref.getRows());
+			List<SubAreaDTO> rows1 = subAreaService.queryByKeyword(ref.getSearchStr(), pageNum, ref.getRows());
+			List<SubAreaResponse> rows = new ArrayList<SubAreaResponse>();
+			if(CollectionUtils.isEmpty(rows1)){
+				return response;
+			}
+			for (SubAreaDTO r : rows1) {
+				AreaDTO area = areaService.selectByPrimaryKey(r.getcAreaId());
+				if(area == null){
+					return response;
+				}
+				SubAreaResponse subAreaResponse = new SubAreaResponse();
+				BeanUtils.copyProperties(r, subAreaResponse);
+				subAreaResponse.setArea(area);
+				rows.add(subAreaResponse);
+			}
 			response.setTotal(total);
 			response.setRows(rows);
 		}
@@ -55,42 +91,25 @@ public class AreaController {
 	}
 
 	@RequestMapping(value = "/saveData", method = { RequestMethod.POST })
-	public BaseResponse saveData(@RequestBody AreaDTO ref) {
+	public BaseResponse saveData(@RequestBody SubAreaDTO ref) {
 		BaseResponse response = new BaseResponse();
+		
 		if (ref == null) {
 			return response;
 		}
 		int num = 0;
-		// 基于pinyin4j生成城市编码和简码
-		String province = ref.getcProvince();
-		String city = ref.getcCity();
-		String district = ref.getcDistrict();
-		province = province.substring(0, province.length() - 1);
-		city = city.substring(0, city.length() - 1);
-		district = district.substring(0, district.length() - 1);
-		// 简码
-		String[] headArray = PinYin4jUtils.getHeadByString(province + city + district);
-		StringBuffer buffer = new StringBuffer();
-		for (String headStr : headArray) {
-			buffer.append(headStr);
-		}
-		String shortcode = buffer.toString();
-		ref.setcShortcode(shortcode);
-		// 城市编码
-		String citycode = PinYin4jUtils.hanziToPinyin(city, "");
-		ref.setcCitycode(citycode);
 
 		if (StringUtils.isEmpty(ref.getcId())) {
-			List<AreaDTO> ids = areaService.queryMaxId();
+			List<SubAreaDTO> ids = subAreaService.queryMaxId();
 			if (CollectionUtils.isEmpty(ids)) {
 				ref.setcId(1 + "");
 			} else {
 				ref.setcId((Integer.valueOf(ids.get(0).getcId().trim()) + 1) + "");
 			}
 
-			num = areaService.insertSelective(ref);
+			num = subAreaService.insertSelective(ref);
 		} else {
-			num = areaService.updateByPrimaryKeySelective(ref);
+			num = subAreaService.updateByPrimaryKeySelective(ref);
 		}
 		if (num == 1) {
 			response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
@@ -108,7 +127,7 @@ public class AreaController {
 		String ids = ref.getIds();
 		String[] idArra = ids.split(",");
 		for (String str : idArra) {
-			areaService.deleteSelect(str);
+			subAreaService.deleteSelect(str);
 		}
 		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 		response.setResult(ResponseCode.SUCCESS.getCode());
@@ -124,54 +143,30 @@ public class AreaController {
 
 		List<String []> list = POIUtil.readExcel(file);
 		for (String[] strings : list) {
-			if(strings.length<4){
+			if(strings.length<7){
 				return ResponseCode.FAILED.getCode();
 			}
-				AreaDTO area = new AreaDTO();
+				SubAreaDTO subArea = new SubAreaDTO();
 				
-				area.setcProvince(strings[0]);
-				area.setcCity(strings[1]);
-				area.setcDistrict(strings[2]);
-				area.setcPostcode(strings[3]);
+				subArea.setcStartNum(strings[0]);
+				subArea.setcEndnum(strings[1]);
+				subArea.setcKeyWords(strings[2]);
+				subArea.setcAssistKeyWords(strings[3]);
+				subArea.setcSingle(strings[4]);
+				subArea.setcAreaId(strings[5]);
+				subArea.setcFixedareaId(strings[6]);
 				
-				List<AreaDTO> ids = areaService.queryMaxId();
+				List<SubAreaDTO> ids = subAreaService.queryMaxId();
 				if(CollectionUtils.isEmpty(ids)){
-					area.setcId(1+"");
+					subArea.setcId(1+"");
 				}else{
-					area.setcId((Integer.valueOf(ids.get(0).getcId().trim()) + 1)+"");
+					subArea.setcId((Integer.valueOf(ids.get(0).getcId().trim()) + 1)+"");
 				}
-				// 基于pinyin4j生成城市编码和简码
-				String province = area.getcProvince();
-				String city = area.getcCity();
-				String district = area.getcDistrict();
-				province = province.substring(0, province.length() - 1);
-				city = city.substring(0, city.length() - 1);
-				district = district.substring(0, district.length() - 1);
-				// 简码
-				String[] headArray = PinYin4jUtils.getHeadByString(province + city
-						+ district);
-				StringBuffer buffer = new StringBuffer();
-				for (String headStr : headArray) {
-					buffer.append(headStr);
-				}
-				String shortcode = buffer.toString();
-				area.setcShortcode(shortcode);
-				// 城市编码
-				String citycode = PinYin4jUtils.hanziToPinyin(city, "");
-				area.setcCitycode(citycode);
-				areaService.insertSelective(area);
+			
+				subAreaService.insertSelective(subArea);
 		}
 		
 		return ResponseCode.SUCCESS.getCode();
-	}
-	
-	
-	@RequestMapping(value = "/queryAll", method = { RequestMethod.POST })
-	public List<AreaDTO> queryAll(){
-		
-		List<AreaDTO> rows = areaService.queryAll();
-		
-		return rows;
 	}
 
 }

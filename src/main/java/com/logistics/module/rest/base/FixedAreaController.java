@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.logistics.module.crm.dto.CustomerDTO;
 import com.logistics.module.crm.service.CustomerService;
+import com.logistics.module.dto.AreaDTO;
 import com.logistics.module.dto.CourierDTO;
 import com.logistics.module.dto.FixedAreaDTO;
 import com.logistics.module.enums.ResponseCode;
@@ -137,5 +138,13 @@ public class FixedAreaController {
 			courierService.updateFixedAreaId("", id, 0);
 		}
 		return response;
+	}
+	
+	@RequestMapping(value = "/queryAll", method = { RequestMethod.POST })
+	public List<FixedAreaDTO> queryAll(){
+		
+		List<FixedAreaDTO> rows = fixedAreaService.queryAll();
+		
+		return rows;
 	}
 }
