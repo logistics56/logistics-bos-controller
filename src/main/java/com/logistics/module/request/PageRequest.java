@@ -14,6 +14,8 @@ public class PageRequest {
 	private String cCourierNum;
 	
 	private String searchStr;
+	
+	private String nodeID;
 
 	public int getPage() {
 		return page;
@@ -45,6 +47,20 @@ public class PageRequest {
 
 	public void setSearchStr(String searchStr) {
 		this.searchStr = searchStr;
+	}
+
+	public String getNodeID() {
+		return nodeID;
+	}
+
+	public void setNodeID(String nodeID) {
+		this.nodeID = nodeID;
+	}
+
+	@Override
+	public String toString() {
+		return "PageRequest [page=" + page + ", rows=" + rows + ", cCourierNum=" + cCourierNum + ", searchStr="
+				+ searchStr + ", nodeID=" + nodeID + "]";
 	}
 	
 	

@@ -168,5 +168,30 @@ public class SubAreaController {
 		
 		return ResponseCode.SUCCESS.getCode();
 	}
+	
+	@RequestMapping(value = "/queryByFixedAreaId", method = { RequestMethod.POST })
+	public PageResponse queryByFixedAreaId(PageRequest ref) {
+		PageResponse response = new PageResponse();
+		int total = subAreaService.queryTotalByFixedAreaId(ref.getNodeID());
+		List<SubAreaDTO> rows1 = subAreaService.queryByFixedAreaId(ref.getNodeID());
+		List<SubAreaResponse> rows = new ArrayList<SubAreaResponse>();
+		if(CollectionUtils.isEmpty(rows1)){
+			return response;
+		}
+		for (SubAreaDTO r : rows1) {
+			AreaDTO area = areaService.selectByPrimaryKey(r.getcAreaId());
+			if(area == null){
+				return response;
+			}
+			SubAreaResponse subAreaResponse = new SubAreaResponse();
+			BeanUtils.copyProperties(r, subAreaResponse);
+			subAreaResponse.setArea(area);
+			rows.add(subAreaResponse);
+		}
+		response.setTotal(total);
+		response.setRows(rows);
+		
+		return response;
+	}
 
 }

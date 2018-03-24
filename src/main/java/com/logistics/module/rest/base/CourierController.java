@@ -13,16 +13,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.logistics.module.dto.AreaDTO;
 import com.logistics.module.dto.CourierDTO;
 import com.logistics.module.dto.StandardDTO;
+import com.logistics.module.dto.SubAreaDTO;
+import com.logistics.module.dto.TakeTimeDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.CourierRequest;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.CourierResponse;
 import com.logistics.module.response.PageResponse;
+import com.logistics.module.response.SubAreaResponse;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.CourierService;
 import com.logistics.module.service.StandardService;
+import com.logistics.module.service.TakeTimeService;
 
 /**
 *
@@ -39,6 +44,9 @@ public class CourierController {
 	
 	@Autowired
 	CourierService courierService;
+	
+	@Autowired
+	TakeTimeService takeTimeService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref){
@@ -120,5 +128,35 @@ public class CourierController {
 		return response;
 	}
 	
+	
+	@RequestMapping(value = "/queryByFixedAreaId", method = { RequestMethod.POST })
+	public PageResponse queryByFixedAreaId(PageRequest ref) {
+		PageResponse response = new PageResponse();
+		int total = courierService.queryTotalByFixedAreaId(ref.getNodeID());
+		List<CourierDTO> rows1 = courierService.queryByFixedAreaId(ref.getNodeID());
+		List<CourierResponse> rows = new ArrayList<CourierResponse>();
+		if(org.springframework.util.CollectionUtils.isEmpty(rows1)){
+			return response;
+		}
+		for (CourierDTO r : rows1) {
+			StandardDTO standardDTO = standardService.selectByPrimaryKey(r.getcStandardId());
+			if(standardDTO == null){
+				return response;
+			}
+			TakeTimeDTO takeTimeDTO = takeTimeService.selectByPrimaryKey(r.getcTaketimeId());
+			if(takeTimeDTO == null){
+				return response;
+			}
+			CourierResponse courierResponse = new CourierResponse();
+			BeanUtils.copyProperties(r, courierResponse);
+			courierResponse.setcStandardName(standardDTO.getcName());
+			courierResponse.setTakeTimeName(takeTimeDTO.getcName());
+			rows.add(courierResponse);
+		}
+		response.setTotal(total);
+		response.setRows(rows);
+		
+		return response;
+	}
 	
 }

@@ -33,6 +33,8 @@ public class CourierResponse {
     private Integer cTaketimeId;
     
     private String cStandardName;
+    
+    private String takeTimeName;
 
     public Integer getcId() {
         return cId;
@@ -144,6 +146,14 @@ public class CourierResponse {
 
 	public void setcStandardName(String cStandardName) {
 		this.cStandardName = cStandardName;
+	}
+
+	public String getTakeTimeName() {
+		return takeTimeName;
+	}
+
+	public void setTakeTimeName(String takeTimeName) {
+		this.takeTimeName = takeTimeName;
 	}
     
     
