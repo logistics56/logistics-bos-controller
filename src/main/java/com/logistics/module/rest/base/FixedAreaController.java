@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.logistics.module.crm.dto.CustomerDTO;
+import com.logistics.module.crm.service.CustomerService;
 import com.logistics.module.dto.FixedAreaDTO;
 import com.logistics.module.enums.ResponseCode;
+import com.logistics.module.request.BaseRequest;
 import com.logistics.module.request.CourierRequest;
 import com.logistics.module.request.FixedAreaRequest;
 import com.logistics.module.request.PageRequest;
@@ -33,6 +36,9 @@ public class FixedAreaController {
 	
 	@Autowired
 	FixedAreaService fixedAreaService;
+	
+	@Autowired
+	CustomerService customerService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref) {
@@ -86,6 +92,23 @@ public class FixedAreaController {
 		return response;
 	}
 
-
-
+	@RequestMapping(value = "/findCustomers", method = { RequestMethod.POST })
+	public List<CustomerDTO> findNoAssociationCustomers(@RequestBody BaseRequest ref) {
+		BaseResponse response = new BaseResponse();
+		List<CustomerDTO> list = customerService.queryByFixedAreaId(ref.getId());
+		return list;
+	}
+	@RequestMapping(value = "/CustomersToFixedArea", method = { RequestMethod.POST })
+	public BaseResponse CustomersToFixedArea(@RequestBody FixedAreaRequest ref) {
+		BaseResponse response = new BaseResponse();
+		for (String str : ref.getAssociationCustomerIds()) {
+			int id = Integer.valueOf(str);
+			customerService.updateFixedAreaId(ref.getCustomerFixedAreaId(), id);
+		}
+		for (String s : ref.getNoassociationCustomerIds()) {
+			int id = Integer.valueOf(s);
+			customerService.updateFixedAreaId("", id);
+		}
+		return response;
+	}
 }

@@ -1,5 +1,6 @@
 package com.logistics.module.request;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -26,6 +27,12 @@ public class FixedAreaRequest {
     private String cTelephone;
 
     private String operat;
+    
+    private String[] associationCustomerIds;
+    
+    private String[] noassociationCustomerIds;
+    
+    private String customerFixedAreaId;
     
     public String getcId() {
         return cId;
@@ -99,12 +106,38 @@ public class FixedAreaRequest {
 		this.operat = operat;
 	}
 
+	public String[] getAssociationCustomerIds() {
+		return associationCustomerIds;
+	}
+
+	public void setAssociationCustomerIds(String[] associationCustomerIds) {
+		this.associationCustomerIds = associationCustomerIds;
+	}
+
+	public String[] getNoassociationCustomerIds() {
+		return noassociationCustomerIds;
+	}
+
+	public void setNoassociationCustomerIds(String[] noassociationCustomerIds) {
+		this.noassociationCustomerIds = noassociationCustomerIds;
+	}
+
+	public String getCustomerFixedAreaId() {
+		return customerFixedAreaId;
+	}
+
+	public void setCustomerFixedAreaId(String customerFixedAreaId) {
+		this.customerFixedAreaId = customerFixedAreaId;
+	}
+
 	@Override
 	public String toString() {
 		return "FixedAreaRequest [cId=" + cId + ", cCompany=" + cCompany + ", cFixedAreaLeader=" + cFixedAreaLeader
 				+ ", cFixedAreaName=" + cFixedAreaName + ", cOperatingCompany=" + cOperatingCompany
 				+ ", cOperatingTime=" + cOperatingTime + ", cOperator=" + cOperator + ", cTelephone=" + cTelephone
-				+ ", operat=" + operat + "]";
+				+ ", operat=" + operat + ", associationCustomerIds=" + Arrays.toString(associationCustomerIds)
+				+ ", noassociationCustomerIds=" + Arrays.toString(noassociationCustomerIds) + ", customerFixedAreaId="
+				+ customerFixedAreaId + "]";
 	}
-    
+
 }
