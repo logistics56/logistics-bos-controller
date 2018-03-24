@@ -34,6 +34,14 @@ public class FixedAreaRequest {
     
     private String customerFixedAreaId;
     
+    private String[] associationCourierIds;
+    
+    private String[] noassociationCourierIds;
+    
+    private String courierFixedAreaId;
+    
+    private int takeTimeId;
+    
     public String getcId() {
         return cId;
     }
@@ -130,6 +138,38 @@ public class FixedAreaRequest {
 		this.customerFixedAreaId = customerFixedAreaId;
 	}
 
+	public String[] getAssociationCourierIds() {
+		return associationCourierIds;
+	}
+
+	public void setAssociationCourierIds(String[] associationCourierIds) {
+		this.associationCourierIds = associationCourierIds;
+	}
+
+	public String[] getNoassociationCourierIds() {
+		return noassociationCourierIds;
+	}
+
+	public void setNoassociationCourierIds(String[] noassociationCourierIds) {
+		this.noassociationCourierIds = noassociationCourierIds;
+	}
+
+	public String getCourierFixedAreaId() {
+		return courierFixedAreaId;
+	}
+
+	public void setCourierFixedAreaId(String courierFixedAreaId) {
+		this.courierFixedAreaId = courierFixedAreaId;
+	}
+
+	public int getTakeTimeId() {
+		return takeTimeId;
+	}
+
+	public void setTakeTimeId(int takeTimeId) {
+		this.takeTimeId = takeTimeId;
+	}
+
 	@Override
 	public String toString() {
 		return "FixedAreaRequest [cId=" + cId + ", cCompany=" + cCompany + ", cFixedAreaLeader=" + cFixedAreaLeader
@@ -137,7 +177,10 @@ public class FixedAreaRequest {
 				+ ", cOperatingTime=" + cOperatingTime + ", cOperator=" + cOperator + ", cTelephone=" + cTelephone
 				+ ", operat=" + operat + ", associationCustomerIds=" + Arrays.toString(associationCustomerIds)
 				+ ", noassociationCustomerIds=" + Arrays.toString(noassociationCustomerIds) + ", customerFixedAreaId="
-				+ customerFixedAreaId + "]";
+				+ customerFixedAreaId + ", associationCourierIds=" + Arrays.toString(associationCourierIds)
+				+ ", noassociationCourierIds=" + Arrays.toString(noassociationCourierIds) + ", courierFixedAreaId="
+				+ courierFixedAreaId + ", takeTimeId=" + takeTimeId + "]";
 	}
+
 
 }

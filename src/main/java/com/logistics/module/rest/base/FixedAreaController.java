@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.logistics.module.crm.dto.CustomerDTO;
 import com.logistics.module.crm.service.CustomerService;
+import com.logistics.module.dto.CourierDTO;
 import com.logistics.module.dto.FixedAreaDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.BaseRequest;
@@ -22,6 +23,7 @@ import com.logistics.module.request.FixedAreaRequest;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
+import com.logistics.module.service.CourierService;
 import com.logistics.module.service.FixedAreaService;
 
 /**
@@ -39,6 +41,9 @@ public class FixedAreaController {
 	
 	@Autowired
 	CustomerService customerService;
+	
+	@Autowired
+	CourierService courierService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref) {
@@ -93,7 +98,7 @@ public class FixedAreaController {
 	}
 
 	@RequestMapping(value = "/findCustomers", method = { RequestMethod.POST })
-	public List<CustomerDTO> findNoAssociationCustomers(@RequestBody BaseRequest ref) {
+	public List<CustomerDTO> findCustomers(@RequestBody BaseRequest ref) {
 		BaseResponse response = new BaseResponse();
 		List<CustomerDTO> list = customerService.queryByFixedAreaId(ref.getId());
 		return list;
@@ -108,6 +113,28 @@ public class FixedAreaController {
 		for (String s : ref.getNoassociationCustomerIds()) {
 			int id = Integer.valueOf(s);
 			customerService.updateFixedAreaId("", id);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/findCouriers", method = { RequestMethod.POST })
+	public List<CourierDTO> findCouriers(@RequestBody BaseRequest ref) {
+		BaseResponse response = new BaseResponse();
+		List<CourierDTO> list = courierService.queryByFixedAreaId(ref.getId());
+		return list;
+	}
+	
+	@RequestMapping(value = "/couriersAndTakeTime", method = { RequestMethod.POST })
+	public BaseResponse couriersAndTakeTime(@RequestBody FixedAreaRequest ref) {
+		BaseResponse response = new BaseResponse();
+		System.out.println(ref.toString());
+		for (String str : ref.getAssociationCourierIds()) {
+			int id = Integer.valueOf(str);
+			courierService.updateFixedAreaId(ref.getCourierFixedAreaId(), id,ref.getTakeTimeId());
+		}
+		for (String s : ref.getNoassociationCourierIds()) {
+			int id = Integer.valueOf(s);
+			courierService.updateFixedAreaId("", id, 0);
 		}
 		return response;
 	}
