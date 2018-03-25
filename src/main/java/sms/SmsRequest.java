@@ -18,6 +18,8 @@ public class SmsRequest {
 	private String password;
 	
 	private String email;
+	
+	private String activecode;
 
 	public String getTelephone() {
 		return telephone;
@@ -66,11 +68,19 @@ public class SmsRequest {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public String getActivecode() {
+		return activecode;
+	}
+
+	public void setActivecode(String activecode) {
+		this.activecode = activecode;
+	}
 
 	@Override
 	public String toString() {
 		return "SmsRequest [telephone=" + telephone + ", username=" + username + ", source=" + source + ", checkcode="
-				+ checkcode + ", password=" + password + ", email=" + email + "]";
+				+ checkcode + ", password=" + password + ", email=" + email + ", activecode=" + activecode + "]";
 	}
 
 	

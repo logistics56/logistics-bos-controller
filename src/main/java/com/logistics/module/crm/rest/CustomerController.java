@@ -1,9 +1,13 @@
 package com.logistics.module.crm.rest;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +25,7 @@ import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.util.TimeUtils;
 
 import sms.SmsRequest;
+import sms.util.MailUtils;
 
 /**
 *
@@ -38,6 +43,9 @@ public class CustomerController {
 	
 	@Autowired
 	SmsSignupService smsSignupService;
+	
+	@Autowired
+	private RedisTemplate<String, String> redisTemplate;
 	
 	@RequestMapping(value = "/queryByFixedAreaId", method = { RequestMethod.POST })
 	public PageResponse queryByFixedAreaId(PageRequest ref) {
@@ -80,7 +88,7 @@ public class CustomerController {
 			String htmlCheckcode = ref.getCheckcode().toLowerCase();
 			if(!htmlCheckcode.equals(sqlCheckcode)){
 				response.setResult(ResponseCode.FAILED.getCode());
-				response.setErrorMsg("输入的验证码有错，请重新输入");
+				response.setErrorMsg("短信验证码错误...");
 			}else{
 				CustomerDTO cus = new CustomerDTO();
 				cus.setcTelephone(ref.getTelephone());
@@ -89,7 +97,22 @@ public class CustomerController {
 				cus.setcEmail(ref.getEmail());
 				
 				int num = customerService.insertSelective(cus);
-				if(num == 1){
+				if(num == 1){//注册成功
+					
+					// 发送一封激活邮件
+					// 生成激活码
+					String activecode = RandomStringUtils.randomNumeric(32);
+
+					// 将激活码保存到redis，设置24小时失效
+					redisTemplate.opsForValue().set(ref.getTelephone(), activecode, 24,
+							TimeUnit.HOURS);
+					
+					// 调用MailUtils发送激活邮件
+					String content = "尊敬的客户您好，请于24小时内，进行邮箱账户的绑定，点击下面地址完成绑定:<br/><a href='"
+							+ MailUtils.activeUrl + "?telephone=" + ref.getTelephone()
+							+ "&activecode=" + activecode + "'>速运快递邮箱绑定地址</a>";
+					MailUtils.sendMail("駃达快递激活邮件", content, ref.getEmail());
+					
 					response.setResult(ResponseCode.SUCCESS.getCode());
 					response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 				}else{
@@ -102,5 +125,45 @@ public class CustomerController {
 		return response;
 	}
 	
+	@RequestMapping(value = "/activeMail", method = { RequestMethod.POST })
+	public BaseResponse activeMail(@RequestBody SmsRequest ref) throws IOException{
+		BaseResponse response = new BaseResponse();
+		
+		// 判断激活码是否有效
+		String activecodeRedis = redisTemplate.opsForValue().get(
+				ref.getTelephone());
+		if (activecodeRedis == null || !activecodeRedis.equals(ref.getActivecode())) {
+			// 激活码无效
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg("激活码无效，请登录系统，重新绑定邮箱！");
+		}else {
+			// 激活码有效
+			// 防止重复绑定
+			// 调用CRM webService 查询客户信息，判断是否已经绑定
+						
+			//根据手机号查询客户--------------------------------------------
+			CustomerDTO customer = new CustomerDTO();
+			//根据手机号查询客户--------------------------------------------
+			
+			if(customer != null ) {
+				
+				if (customer.getcType() == 1) {
+					// 已经绑定过
+					response.setResult(ResponseCode.FAILED.getCode());
+					response.setErrorMsg("邮箱已经绑定过，无需重复绑定！");
+				} else {
+					// 没有绑定,进行绑定
+					//更新type-----------------------------------------
+					//更新type-----------------------------------------
+					response.setResult(ResponseCode.SUCCESS.getCode());
+					response.setErrorMsg("邮箱绑定成功！");
+				}
+			}
+
+			// 删除redis的激活码
+			redisTemplate.delete(ref.getTelephone());
+		}
+		return response;
+	}
 
 }
