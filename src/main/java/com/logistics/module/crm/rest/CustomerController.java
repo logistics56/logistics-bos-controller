@@ -125,10 +125,9 @@ public class CustomerController {
 		return response;
 	}
 	
-	@RequestMapping(value = "/activeMail", method = { RequestMethod.POST })
-	public BaseResponse activeMail(@RequestBody SmsRequest ref) throws IOException{
+	@RequestMapping(value = "/activeMail", method = { RequestMethod.GET })
+	public BaseResponse activeMail(SmsRequest ref) throws IOException{
 		BaseResponse response = new BaseResponse();
-		
 		// 判断激活码是否有效
 		String activecodeRedis = redisTemplate.opsForValue().get(
 				ref.getTelephone());
@@ -141,27 +140,34 @@ public class CustomerController {
 			// 防止重复绑定
 			// 调用CRM webService 查询客户信息，判断是否已经绑定
 						
-			//根据手机号查询客户--------------------------------------------
-			CustomerDTO customer = new CustomerDTO();
-			//根据手机号查询客户--------------------------------------------
+			//根据手机号查询客户
+			List<CustomerDTO> customers = customerService.queryByTelephone(ref.getTelephone());
 			
-			if(customer != null ) {
+			if(!CollectionUtils.isEmpty(customers) ) {
 				
-				if (customer.getcType() == 1) {
+				if (customers.get(0).getcType() == 1) {
 					// 已经绑定过
 					response.setResult(ResponseCode.FAILED.getCode());
 					response.setErrorMsg("邮箱已经绑定过，无需重复绑定！");
 				} else {
 					// 没有绑定,进行绑定
 					//更新type-----------------------------------------
+					
+					int num = customerService.updateType(ref.getTelephone());
 					//更新type-----------------------------------------
-					response.setResult(ResponseCode.SUCCESS.getCode());
-					response.setErrorMsg("邮箱绑定成功！");
+					if(num == 1){
+						response.setResult(ResponseCode.SUCCESS.getCode());
+						response.setErrorMsg("邮箱绑定成功！");
+						// 删除redis的激活码
+						redisTemplate.delete(ref.getTelephone());
+					}else{
+						response.setResult(ResponseCode.FAILED.getCode());
+						response.setErrorMsg("邮箱绑定失败！");
+					}
 				}
 			}
 
-			// 删除redis的激活码
-			redisTemplate.delete(ref.getTelephone());
+			
 		}
 		return response;
 	}
