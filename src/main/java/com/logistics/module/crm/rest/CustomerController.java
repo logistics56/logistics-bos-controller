@@ -110,7 +110,7 @@ public class CustomerController {
 					// 调用MailUtils发送激活邮件
 					String content = "尊敬的客户您好，请于24小时内，进行邮箱账户的绑定，点击下面地址完成绑定:<br/><a href='"
 							+ MailUtils.activeUrl + "?telephone=" + ref.getTelephone()
-							+ "&activecode=" + activecode + "'>速运快递邮箱绑定地址</a>";
+							+ "&activecode=" + activecode + "'>駃达快递邮箱绑定地址</a>";
 					MailUtils.sendMail("駃达快递激活邮件", content, ref.getEmail());
 					
 					response.setResult(ResponseCode.SUCCESS.getCode());
