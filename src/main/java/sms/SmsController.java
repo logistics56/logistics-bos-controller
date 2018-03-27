@@ -51,14 +51,14 @@ public class SmsController {
 		if(num == 1){
 //         发送短信------------
 			
-			try {
-				SendSmsResponse smsResponse = AliSmsUtils.sendSms(ref.getTelephone(), ref.getUsername(), randomCode);
-				 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
-					 System.out.println("发送短信成功!");
-				 }
-			} catch (ClientException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				SendSmsResponse smsResponse = AliSmsUtils.sendSms(ref.getTelephone(), ref.getUsername(), randomCode);
+//				 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
+//					 System.out.println("发送短信成功!");
+//				 }
+//			} catch (ClientException e) {
+//				e.printStackTrace();
+//			}
 			
 			response.setResult(ResponseCode.SUCCESS.getCode());
 			response.setErrorMsg(ResponseCode.SUCCESS.getMsg());

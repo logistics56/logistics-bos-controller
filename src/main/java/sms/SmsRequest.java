@@ -20,6 +20,10 @@ public class SmsRequest {
 	private String email;
 	
 	private String activecode;
+	
+	private int select;
+	
+	private String telephone2;
 
 	public String getTelephone() {
 		return telephone;
@@ -76,13 +80,29 @@ public class SmsRequest {
 	public void setActivecode(String activecode) {
 		this.activecode = activecode;
 	}
+	
+	public int getSelect() {
+		return select;
+	}
+
+	public void setSelect(int select) {
+		this.select = select;
+	}
+
+	public String getTelephone2() {
+		return telephone2;
+	}
+
+	public void setTelephone2(String telephone2) {
+		this.telephone2 = telephone2;
+	}
 
 	@Override
 	public String toString() {
 		return "SmsRequest [telephone=" + telephone + ", username=" + username + ", source=" + source + ", checkcode="
-				+ checkcode + ", password=" + password + ", email=" + email + ", activecode=" + activecode + "]";
+				+ checkcode + ", password=" + password + ", email=" + email + ", activecode=" + activecode + ", select="
+				+ select + ", telephone2=" + telephone2 + "]";
 	}
 
-	
 
 }

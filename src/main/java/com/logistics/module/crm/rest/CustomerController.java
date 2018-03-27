@@ -171,5 +171,51 @@ public class CustomerController {
 		}
 		return response;
 	}
+	
+	@RequestMapping(value = "/signin", method = { RequestMethod.POST })
+	public BaseResponse signin(@RequestBody SmsRequest ref) {
+		BaseResponse response = new BaseResponse();
+		System.out.println(ref.toString());
+		if(ref.getSelect() == 1){
+			//查询验证码
+			List<SmsSignupDTO> list = smsSignupService.queryByTime(new Date(TimeUtils.addMinute(System.currentTimeMillis(),-5)), new Date(), ref.getTelephone(), ref.getSource());
+			if(CollectionUtils.isEmpty(list)){
+				response.setResult(ResponseCode.FAILED.getCode());
+				response.setErrorMsg("验证码错误或不存在");
+			}else{
+				SmsSignupDTO dto = list.get(0);
+				String sqlCheckcode = dto.getcCheckcode().toLowerCase();
+				String htmlCheckcode = ref.getCheckcode().toLowerCase();
+				if(!htmlCheckcode.equals(sqlCheckcode)){
+					response.setResult(ResponseCode.FAILED.getCode());
+					response.setErrorMsg("短信验证码错误...");
+				}else{
+						
+						response.setResult(ResponseCode.SUCCESS.getCode());
+						response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+				}
+			}
+		}else if(ref.getSelect() == 0){
+			//根据手机号查询客户
+			List<CustomerDTO> customers = customerService.queryByTelephone(ref.getTelephone2());
+			
+			if(!CollectionUtils.isEmpty(customers) ) {
+				if(customers.get(0).getcPassword().equals(ref.getPassword())){
+					response.setResult(ResponseCode.SUCCESS.getCode());
+					response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+				}else{
+					response.setResult(ResponseCode.FAILED.getCode());
+					response.setErrorMsg("密码输入错误");
+				}
+			}else{
+				response.setResult(ResponseCode.FAILED.getCode());
+				response.setErrorMsg("账号不存在");
+			}
+		}else{
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg("请选择登录方式");
+		}
+		return response;
+	}
 
 }
