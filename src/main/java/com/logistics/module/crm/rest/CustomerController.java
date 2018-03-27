@@ -190,7 +190,8 @@ public class CustomerController {
 					response.setResult(ResponseCode.FAILED.getCode());
 					response.setErrorMsg("短信验证码错误...");
 				}else{
-						
+						List<CustomerDTO> customers = customerService.queryByTelephone(ref.getTelephone());
+						response.setUser(customers.get(0));
 						response.setResult(ResponseCode.SUCCESS.getCode());
 						response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 				}
@@ -201,6 +202,7 @@ public class CustomerController {
 			
 			if(!CollectionUtils.isEmpty(customers) ) {
 				if(customers.get(0).getcPassword().equals(ref.getPassword())){
+					response.setUser(customers.get(0));
 					response.setResult(ResponseCode.SUCCESS.getCode());
 					response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 				}else{

@@ -1,5 +1,6 @@
 package com.logistics.module.response.base;
 
+import com.logistics.module.crm.dto.CustomerDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.util.RandomNumber;
 
@@ -8,6 +9,8 @@ public class BaseResponse {
 	private String errorMsg;
 	private int result;
 	private String requestId;
+	
+	private CustomerDTO user;
 	
 	/**
 	 * 默认返回码为1：成功
@@ -63,5 +66,15 @@ public class BaseResponse {
 	public void setRequestId(String requestId) {
 		this.requestId = requestId;
 	}
+
+	public CustomerDTO getUser() {
+		return user;
+	}
+
+	public void setUser(CustomerDTO user) {
+		this.user = user;
+	}
+	
+	
 
 }
