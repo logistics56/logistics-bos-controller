@@ -175,7 +175,6 @@ public class CustomerController {
 	@RequestMapping(value = "/signin", method = { RequestMethod.POST })
 	public BaseResponse signin(@RequestBody SmsRequest ref) {
 		BaseResponse response = new BaseResponse();
-		System.out.println(ref.toString());
 		if(ref.getSelect() == 1){
 			//查询验证码
 			List<SmsSignupDTO> list = smsSignupService.queryByTime(new Date(TimeUtils.addMinute(System.currentTimeMillis(),-5)), new Date(), ref.getTelephone(), ref.getSource());
