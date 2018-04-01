@@ -218,5 +218,33 @@ public class CustomerController {
 		}
 		return response;
 	}
+	
+	@RequestMapping(value = "/forgotPassword", method = { RequestMethod.POST })
+	public BaseResponse forgotPassword(@RequestBody SmsRequest ref) {
+		BaseResponse response = new BaseResponse();
+		//根据手机号查询客户
+		List<CustomerDTO> customers = customerService.queryByTelephone(ref.getTelephone());
+		
+		if(CollectionUtils.isEmpty(customers) ) {
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg("账号不存在");
+		}else{
+			if(customers.get(0).getcType() == 0){
+				response.setResult(ResponseCode.FAILED.getCode());
+				response.setErrorMsg("该账号还未绑定邮箱，暂不支持此操作，建议你使用手机号登录");
+			}else{
+				
+				// 发送一封密码找回邮件
+				// 调用MailUtils发送激活邮件
+				String content = "尊敬的："+customers.get(0).getcUsername()+"，您好，<br/>感谢您使用駃达快递服务，您正在进行账号密码取回，<br/>你的密码为 :"+customers.get(0).getcPassword()+"，<br/>如非本人操作，请忽略此邮件，由此给您带来的不便请谅解！ <br/><br/>本邮件由[<a href='http://localhost:8083/logistics-customer-web/login.html'>駃达快递</a>]系统发出，请勿直接回复";
+				MailUtils.sendMail("駃达快递密码找回邮件", content, customers.get(0).getcEmail());
+				
+				response.setResult(ResponseCode.SUCCESS.getCode());
+				response.setErrorMsg("找回密码成功，密码已发送至你的邮箱，请及时查看");
+			}
+		}
+				
+		return response;
+	}
 
 }
