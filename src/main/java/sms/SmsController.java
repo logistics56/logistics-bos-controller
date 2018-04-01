@@ -50,15 +50,16 @@ public class SmsController {
 		int num = smsSignupService.insertSelective(record);
 		if(num == 1){
 //         发送短信------------
-			
-//			try {
-//				SendSmsResponse smsResponse = AliSmsUtils.sendSms(ref.getTelephone(), ref.getUsername(), randomCode);
-//				 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
-//					 System.out.println("发送短信成功!");
-//				 }
-//			} catch (ClientException e) {
-//				e.printStackTrace();
-//			}
+			if(AliSmsUtils.status == 1){
+				try {
+					SendSmsResponse smsResponse = AliSmsUtils.sendSms(ref.getTelephone(), ref.getUsername(), randomCode);
+					 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
+						 System.out.println("发送短信成功!");
+					 }
+				} catch (ClientException e) {
+					e.printStackTrace();
+				}
+			}
 			
 			response.setResult(ResponseCode.SUCCESS.getCode());
 			response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
