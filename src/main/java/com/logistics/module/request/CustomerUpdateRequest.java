@@ -30,6 +30,14 @@ public class CustomerUpdateRequest {
 	
 	private String telephone;
 	
+	private String email;
+	
+	private String oldpwd;
+	
+	private String newpwd;
+	
+	private String secpwd;
+	
 	public String getUsername() {
 		return username;
 	}
@@ -102,11 +110,44 @@ public class CustomerUpdateRequest {
 		this.telephone = telephone;
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getOldpwd() {
+		return oldpwd;
+	}
+
+	public void setOldpwd(String oldpwd) {
+		this.oldpwd = oldpwd;
+	}
+
+	public String getNewpwd() {
+		return newpwd;
+	}
+
+	public void setNewpwd(String newpwd) {
+		this.newpwd = newpwd;
+	}
+
+	public String getSecpwd() {
+		return secpwd;
+	}
+
+	public void setSecpwd(String secpwd) {
+		this.secpwd = secpwd;
+	}
+
 	@Override
 	public String toString() {
 		return "CustomerUpdateRequest [username=" + username + ", sex=" + sex + ", birth=" + birth + ", address="
 				+ address + ", mobile=" + mobile + ", company=" + company + ", department=" + department + ", position="
-				+ position + ", telephone=" + telephone + "]";
+				+ position + ", telephone=" + telephone + ", email=" + email + ", oldpwd=" + oldpwd + ", newpwd="
+				+ newpwd + ", secpwd=" + secpwd + "]";
 	}
 
 }

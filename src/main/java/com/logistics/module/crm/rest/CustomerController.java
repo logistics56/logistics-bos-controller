@@ -10,6 +10,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -193,6 +194,7 @@ public class CustomerController {
 					response.setErrorMsg("短信验证码错误...");
 				}else{
 						List<CustomerDTO> customers = customerService.queryByTelephone(ref.getTelephone());
+						customers.get(0).setcPassword("");
 						response.setUser(customers.get(0));
 						response.setResult(ResponseCode.SUCCESS.getCode());
 						response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
@@ -255,7 +257,7 @@ public class CustomerController {
 		BaseResponse response = new BaseResponse();
 		System.out.println(file);
 		System.out.println(telephone);
-		String path = "/customerPhotos";
+		String path = "customerPhotos/";
 		String fileName = ""+telephone+TimeUtils.getFormatedDateTime(new Date()) +".jpg";
 		File dir = new File(path, fileName);
 		if(!dir.exists()){  
@@ -313,6 +315,7 @@ public class CustomerController {
 				int num = customerService.updateByPrimaryKeySelective(customerDTO);
 				if(num == 1){
 					List<CustomerDTO> list2 = customerService.queryByTelephone(ref.getTelephone());
+					list2.get(0).setcPassword("");
 					response.setUser(list2.get(0));
 					response.setResult(ResponseCode.SUCCESS.getCode());
 					response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
@@ -322,6 +325,77 @@ public class CustomerController {
 				}
 				
 			}
+		return response;
+	}
+	
+	@RequestMapping(value = "/binding", method = { RequestMethod.POST })
+	public BaseResponse binding(@RequestBody CustomerUpdateRequest ref) {
+		BaseResponse response = new BaseResponse();
+		List<CustomerDTO> list = customerService.queryByTelephone(ref.getTelephone());
+        if(CollectionUtils.isEmpty(list)){
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg("账号错误");
+		}else{
+			if(list.get(0).getcType() == 1){
+				response.setResult(ResponseCode.FAILED.getCode());
+				response.setErrorMsg("该账号已绑定邮箱");
+			}else{
+				// 发送一封激活邮件
+				// 生成激活码
+				String activecode = RandomStringUtils.randomNumeric(32);
+				
+				// 将激活码保存到redis，设置24小时失效
+				redisTemplate.opsForValue().set(ref.getTelephone(), activecode, 24,
+						TimeUnit.HOURS);
+				
+				// 调用MailUtils发送激活邮件
+				String content = "尊敬的客户您好，请于24小时内，进行邮箱账户的绑定，点击下面地址完成绑定:<br/><a href='"
+						+ MailUtils.activeUrl + "?telephone=" + ref.getTelephone()
+						+ "&activecode=" + activecode + "'>駃达快递邮箱绑定地址</a>";
+				MailUtils.sendMail("駃达快递激活邮件", content, ref.getEmail());
+				
+				response.setResult(ResponseCode.SUCCESS.getCode());
+				response.setErrorMsg("邮件已发送至你的邮箱，请于24小时内，进行邮箱账户的绑定");
+			}
+		}			
+		return response;
+	}
+	
+	@RequestMapping(value = "/changepwd", method = { RequestMethod.POST })
+	public BaseResponse changepwd(@RequestBody CustomerUpdateRequest ref) {
+		BaseResponse response = new BaseResponse();
+		if(StringUtils.isEmpty(ref.getOldpwd()) || StringUtils.isEmpty(ref.getNewpwd()) || StringUtils.isEmpty(ref.getSecpwd())){
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg("请填写全部信息");
+		}else{
+			if(!ref.getNewpwd().equals(ref.getSecpwd())){
+				response.setResult(ResponseCode.FAILED.getCode());
+				response.setErrorMsg("两次输入的密码不一致，请确认后提交");
+			}else{
+				List<CustomerDTO> list = customerService.queryByTelephone(ref.getTelephone());
+		        if(CollectionUtils.isEmpty(list)){
+					response.setResult(ResponseCode.FAILED.getCode());
+					response.setErrorMsg("账号错误");
+				}else{
+					if(!list.get(0).getcPassword().equals(ref.getOldpwd())){
+						response.setResult(ResponseCode.FAILED.getCode());
+						response.setErrorMsg("原始密码输入错误，请填写正确信息");
+					}else{
+						CustomerDTO customerDTO = new CustomerDTO();
+						customerDTO.setcPassword(ref.getNewpwd());
+						customerDTO.setcId(list.get(0).getcId());
+						int num = customerService.updateByPrimaryKeySelective(customerDTO);
+						if(num == 1){
+							response.setResult(ResponseCode.SUCCESS.getCode());
+							response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+						}else{
+							response.setResult(ResponseCode.FAILED.getCode());
+							response.setErrorMsg("修改失败");
+						}
+					}
+				}
+			}
+		}
 		return response;
 	}
 
