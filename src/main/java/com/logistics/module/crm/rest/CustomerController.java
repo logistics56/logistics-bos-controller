@@ -1,5 +1,6 @@
 package com.logistics.module.crm.rest;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -13,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.logistics.module.crm.dto.CustomerDTO;
 import com.logistics.module.crm.dto.SmsSignupDTO;
 import com.logistics.module.crm.service.CustomerService;
 import com.logistics.module.crm.service.SmsSignupService;
 import com.logistics.module.enums.ResponseCode;
+import com.logistics.module.request.CustomerUpdateRequest;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
@@ -244,6 +247,81 @@ public class CustomerController {
 			}
 		}
 				
+		return response;
+	}
+	
+	@RequestMapping(value = "/updateFile", method = { RequestMethod.POST })
+	public BaseResponse updateFile(MultipartFile file,String telephone) {
+		BaseResponse response = new BaseResponse();
+		System.out.println(file);
+		System.out.println(telephone);
+		String path = "/customerPhotos";
+		String fileName = ""+telephone+TimeUtils.getFormatedDateTime(new Date()) +".jpg";
+		File dir = new File(path, fileName);
+		if(!dir.exists()){  
+            dir.mkdirs();  
+        }  
+		//      MultipartFile自带的解析方法  
+        try {
+			file.transferTo(dir);
+		} catch (IllegalStateException e) {
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg(ResponseCode.FAILED.getMsg());
+			e.printStackTrace();
+		} catch (IOException e) {
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg(ResponseCode.FAILED.getMsg());
+			e.printStackTrace();
+		}  
+        List<CustomerDTO> list = customerService.queryByTelephone(telephone);
+        if(CollectionUtils.isEmpty(list)){
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg(ResponseCode.FAILED.getMsg());
+		}else{
+			CustomerDTO customerDTO = new CustomerDTO();
+			customerDTO.setcId(list.get(0).getcId());
+			customerDTO.setcImg(fileName);
+			int num = customerService.updateByPrimaryKeySelective(customerDTO);
+			if(num == 1){
+				response.setResult(ResponseCode.SUCCESS.getCode());
+				response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+			}else{
+				response.setResult(ResponseCode.FAILED.getCode());
+				response.setErrorMsg(ResponseCode.FAILED.getMsg());
+			}
+		}
+		return response;
+	}
+	@RequestMapping(value = "/updateInfo", method = { RequestMethod.POST })
+	public BaseResponse updateInfo(@RequestBody CustomerUpdateRequest ref) {
+		BaseResponse response = new BaseResponse();
+		 List<CustomerDTO> list = customerService.queryByTelephone(ref.getTelephone());
+	        if(CollectionUtils.isEmpty(list)){
+				response.setResult(ResponseCode.FAILED.getCode());
+				response.setErrorMsg(ResponseCode.FAILED.getMsg());
+			}else{
+				CustomerDTO customerDTO = new CustomerDTO();
+				customerDTO.setcId(list.get(0).getcId());
+				customerDTO.setcUsername(ref.getUsername());
+				customerDTO.setcSex(ref.getSex());
+				customerDTO.setcBrithday(ref.getBirth());
+				customerDTO.setcAddress(ref.getAddress());
+				customerDTO.setcMobilephone(ref.getMobile());
+				customerDTO.setcCompany(ref.getCompany());
+				customerDTO.setcDepartment(ref.getDepartment());
+				customerDTO.setcPosition(ref.getPosition());
+				int num = customerService.updateByPrimaryKeySelective(customerDTO);
+				if(num == 1){
+					List<CustomerDTO> list2 = customerService.queryByTelephone(ref.getTelephone());
+					response.setUser(list2.get(0));
+					response.setResult(ResponseCode.SUCCESS.getCode());
+					response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+				}else{
+					response.setResult(ResponseCode.FAILED.getCode());
+					response.setErrorMsg(ResponseCode.FAILED.getMsg());
+				}
+				
+			}
 		return response;
 	}
 
