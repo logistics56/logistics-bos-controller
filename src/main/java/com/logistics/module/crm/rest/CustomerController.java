@@ -257,7 +257,7 @@ public class CustomerController {
 		BaseResponse response = new BaseResponse();
 		System.out.println(file);
 		System.out.println(telephone);
-		String path = "customerPhotos/";
+		String path = "D:\\MyProject\\logistics-customerPhotos\\";
 		String fileName = ""+telephone+TimeUtils.getFormatedDateTime(new Date()) +".jpg";
 		File dir = new File(path, fileName);
 		if(!dir.exists()){  
