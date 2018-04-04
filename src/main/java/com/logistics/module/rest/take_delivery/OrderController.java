@@ -71,7 +71,6 @@ public class OrderController {
 	@RequestMapping(value = "/placeAnOrder", method = { RequestMethod.POST })
 	public BaseResponse deleteData(@RequestBody OrderRequest ref) {
 		BaseResponse response = new BaseResponse();
-		System.out.println(ref.toString());
 		//生成工单号
 		String orderNum = UUID.randomUUID().toString();
 		
@@ -298,18 +297,20 @@ public class OrderController {
 			
 			int num = orderService.insertSelective(order);
 			if(num == 1){
-				System.out.println("发送短信!");
-				//发送短信------------
-				if(AliSmsUtils.status == 1){
-					try {
-						SendSmsResponse smsResponse = AliSmsUtils.sendSms(ref.getTelephone(), null, orderNum, SMSModel.SMS_129764430.getValve());
-						 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
-							 System.out.println("发送短信成功!");
-						 }else{
-							 AliSmsUtils.sendSms(courier.getcTelephone(), null, orderNum, SMSModel.SMS_129764430.getValve());
-						 }
-					} catch (ClientException e) {
-						e.printStackTrace();
+				OrderDTO orderdto = orderService.queryByOrderNum(orderNum);
+				if(orderdto != null){
+					//发送短信------------
+					if(AliSmsUtils.status == 1){
+						try {
+							SendSmsResponse smsResponse = AliSmsUtils.sendSms(courier.getcTelephone(), null, orderdto.getcId()+"", SMSModel.SMS_129764430.getValve());
+							 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
+								 System.out.println("发送短信成功!");
+							 }else{
+								 AliSmsUtils.sendSms(courier.getcTelephone(), null, orderNum, SMSModel.SMS_129764430.getValve());
+							 }
+						} catch (ClientException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 				//生成工单
@@ -321,7 +322,7 @@ public class OrderController {
 				workBill.setcSmsnumber(SMSModel.SMS_129764430.getValve());
 				workBill.setcType("已通知");
 				workBill.setcCourier(courier.getcId());
-				OrderDTO orderdto = orderService.queryByOrderNum(orderNum);
+				
 				if(orderdto != null){
 					workBill.setcOrderId(orderdto.getcId());
 				}
