@@ -17,6 +17,7 @@ import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
 
+import sms.enums.SMSModel;
 import sms.util.AliSmsUtils;
 
 
@@ -52,7 +53,7 @@ public class SmsController {
 //         发送短信------------
 			if(AliSmsUtils.status == 1){
 				try {
-					SendSmsResponse smsResponse = AliSmsUtils.sendSms(ref.getTelephone(), ref.getUsername(), randomCode);
+					SendSmsResponse smsResponse = AliSmsUtils.sendSms(ref.getTelephone(), ref.getUsername(), randomCode, SMSModel.SMS_129740906.getValve());
 					 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
 						 System.out.println("发送短信成功!");
 					 }

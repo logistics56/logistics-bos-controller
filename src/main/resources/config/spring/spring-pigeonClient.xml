@@ -127,12 +127,40 @@
 		<property name="retries" value="1" />
 	</bean>
 	
-		<bean id="vehicleService"
+	<bean id="vehicleService"
 		class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
 		init-method="init">
 		<property name="url"
 			value="http://service.lizhen.com/logistics-bos-service/vehicleService_1.0.0" />
 		<property name="interfaceName" value="com.logistics.module.service.VehicleService" />
+		<property name="timeout" value="5000" />
+		<property name="serialize" value="hessian" />
+		<property name="callType" value="sync" />
+		<property name="cluster" value="failfast" />
+		<property name="timeoutRetry" value="false" />
+		<property name="retries" value="1" />
+	</bean>
+	
+	<bean id="orderService"
+		class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
+		init-method="init">
+		<property name="url"
+			value="http://service.lizhen.com/logistics-bos-service/orderService_1.0.0" />
+		<property name="interfaceName" value="com.logistics.module.service.OrderService" />
+		<property name="timeout" value="5000" />
+		<property name="serialize" value="hessian" />
+		<property name="callType" value="sync" />
+		<property name="cluster" value="failfast" />
+		<property name="timeoutRetry" value="false" />
+		<property name="retries" value="1" />
+	</bean>
+	
+	<bean id="workBillService"
+		class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
+		init-method="init">
+		<property name="url"
+			value="http://service.lizhen.com/logistics-bos-service/workBillService_1.0.0" />
+		<property name="interfaceName" value="com.logistics.module.service.WorkBillService" />
 		<property name="timeout" value="5000" />
 		<property name="serialize" value="hessian" />
 		<property name="callType" value="sync" />
