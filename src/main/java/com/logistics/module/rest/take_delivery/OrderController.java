@@ -23,7 +23,9 @@ import com.logistics.module.dto.OrderDTO;
 import com.logistics.module.dto.SubAreaDTO;
 import com.logistics.module.dto.WorkBillDTO;
 import com.logistics.module.enums.ResponseCode;
+import com.logistics.module.request.CourierRequest;
 import com.logistics.module.request.OrderRequest;
+import com.logistics.module.response.OrderResponse;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.AreaService;
 import com.logistics.module.service.CourierService;
@@ -336,6 +338,26 @@ public class OrderController {
 				response.setErrorMsg(ResponseCode.FAILED.getMsg());
 			}
 		}
+	}
+	
+	@RequestMapping(value = "/queryDisSendAddress", method = { RequestMethod.POST })
+	public OrderResponse queryDisSendAddress(@RequestBody OrderRequest ref){
+		OrderResponse response = new OrderResponse();
+		List<OrderDTO> list = orderService.queryDisSendAddress(ref.getTelephone());
+		response.setOrders(list);
+		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		response.setResult(ResponseCode.SUCCESS.getCode());
+		return response;
+	}
+	
+	@RequestMapping(value = "/queryDisRecAddress", method = { RequestMethod.POST })
+	public OrderResponse queryDisRecAddress(@RequestBody OrderRequest ref){
+		OrderResponse response = new OrderResponse();
+		List<OrderDTO> list = orderService.queryDisRecAddress(ref.getTelephone());
+		response.setOrders(list);
+		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		response.setResult(ResponseCode.SUCCESS.getCode());
+		return response;
 	}
 	
 }
