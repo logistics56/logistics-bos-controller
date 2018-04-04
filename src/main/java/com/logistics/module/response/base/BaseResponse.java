@@ -1,5 +1,7 @@
 package com.logistics.module.response.base;
 
+import java.util.List;
+
 import com.logistics.module.crm.dto.CustomerDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.util.RandomNumber;
@@ -11,6 +13,8 @@ public class BaseResponse {
 	private String requestId;
 	
 	private CustomerDTO user;
+	
+	private List allOrderStatus;
 	
 	/**
 	 * 默认返回码为1：成功
@@ -74,7 +78,14 @@ public class BaseResponse {
 	public void setUser(CustomerDTO user) {
 		this.user = user;
 	}
-	
-	
+
+	public List getAllOrderStatus() {
+		return allOrderStatus;
+	}
+
+	public void setAllOrderStatus(List allOrderStatus) {
+		this.allOrderStatus = allOrderStatus;
+	}
+
 
 }

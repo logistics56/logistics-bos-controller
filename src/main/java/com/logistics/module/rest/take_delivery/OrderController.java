@@ -214,7 +214,8 @@ public class OrderController {
 			}
 		}
 		
-		
+		List<List<OrderDTO>> orders = orderService.queryAllStatus(ref.getTelephone());
+		response.setAllOrderStatus(orders);
 		return response;
 	}
 	
@@ -355,6 +356,16 @@ public class OrderController {
 		OrderResponse response = new OrderResponse();
 		List<OrderDTO> list = orderService.queryDisRecAddress(ref.getTelephone());
 		response.setOrders(list);
+		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		response.setResult(ResponseCode.SUCCESS.getCode());
+		return response;
+	}
+	
+	@RequestMapping(value = "/allOrderStatus", method = { RequestMethod.POST })
+	public BaseResponse allOrderStatus(@RequestBody OrderRequest ref){
+		BaseResponse response = new BaseResponse();
+		List<List<OrderDTO>> orders = orderService.queryAllStatus(ref.getTelephone());
+		response.setAllOrderStatus(orders);
 		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 		response.setResult(ResponseCode.SUCCESS.getCode());
 		return response;
