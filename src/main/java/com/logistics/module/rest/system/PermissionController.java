@@ -1,4 +1,4 @@
-package com.logistics.module.rest.base;
+package com.logistics.module.rest.system;
 
 import java.util.List;
 
@@ -8,34 +8,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.logistics.module.dto.MenuDTO;
+import com.logistics.module.dto.PermissionDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.DeleteIds;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
-import com.logistics.module.service.MenuService;
+import com.logistics.module.service.PermissionService;
 
 /**
 *
 * @author 李振        E-mail:lizhn95@163.com
-* @version 创建时间：2018年4月5日 下午5:28:30
+* @version 创建时间：2018年4月5日 下午7:03:04
 * 
 */
 @RestController
-@RequestMapping("/menu")
-public class MenuController {
+@RequestMapping("/permission")
+public class PermissionController {
 	
 	@Autowired
-	MenuService menuService;
+	PermissionService permissionService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref){
 		PageResponse response = new PageResponse();
 		
-		int total = menuService.queryTotal();
+		int total = permissionService.queryTotal();
 		int pageNum = (ref.getPage()-1) * ref.getRows();
-		List<MenuDTO> rows = menuService.queryByPage( pageNum, ref.getRows());
+		List<PermissionDTO> rows = permissionService.queryByPage( pageNum, ref.getRows());
 		response.setTotal(total);
 		response.setRows(rows);
 		
@@ -43,11 +43,11 @@ public class MenuController {
 	}
 	
 	@RequestMapping(value = "/saveData", method = { RequestMethod.POST })
-	public BaseResponse saveData(@RequestBody MenuDTO ref){
+	public BaseResponse saveData(@RequestBody PermissionDTO ref){
 		BaseResponse response = new BaseResponse();
-		int id = menuService.queryMaxId() + 1;
+		int id = permissionService.queryMaxId() + 1;
 		ref.setcId(id);
-		int num = menuService.insertSelective(ref);
+		int num = permissionService.insertSelective(ref);
 		if(num == 1){
 			response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 			response.setResult(ResponseCode.SUCCESS.getCode());
@@ -59,9 +59,9 @@ public class MenuController {
 	}
 	
 	@RequestMapping(value = "/queryAll", method = { RequestMethod.POST })
-	public List<MenuDTO> queryAll(){
+	public List<PermissionDTO> queryAll(){
 		
-		List<MenuDTO> rows = menuService.queryAll();
+		List<PermissionDTO> rows = permissionService.queryAll();
 		
 		return rows;
 	}
@@ -72,12 +72,13 @@ public class MenuController {
 		String ids = ref.getIds();
 		String[] idArra = ids.split(",");
 		for (String str : idArra) {
-			menuService.deleteSelect(Integer.valueOf(str));
+			permissionService.deleteSelect(Integer.valueOf(str));
 		}
 		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 		response.setResult(ResponseCode.SUCCESS.getCode());
 		
 		return response;
 	}
+
 
 }
