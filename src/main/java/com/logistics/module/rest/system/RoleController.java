@@ -22,6 +22,7 @@ import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.RoleMenuService;
 import com.logistics.module.service.RolePermissionService;
 import com.logistics.module.service.RoleService;
+import com.logistics.module.service.UserRoleService;
 
 /**
 *
@@ -41,6 +42,9 @@ public class RoleController {
 	
 	@Autowired
 	RoleMenuService roleMenuService;
+	
+	@Autowired
+	UserRoleService userRoleService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref){
@@ -92,7 +96,7 @@ public class RoleController {
 		return response;
 	}
 	
-	@RequestMapping(value = "/queryAll", method = { RequestMethod.POST })
+	@RequestMapping(value = "/queryAll", method = { RequestMethod.GET })
 	public List<RoleDTO> queryAll(){
 		
 		List<RoleDTO> rows = roleService.queryAll();
@@ -109,6 +113,7 @@ public class RoleController {
 			roleService.deleteSelect(Integer.valueOf(str));
 			rolePermissionService.deleteByRoleId(Integer.valueOf(str));
 			roleMenuService.deleteByRoleId(Integer.valueOf(str));
+			userRoleService.deleteByRoleId(Integer.valueOf(str));
 		}
 		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 		response.setResult(ResponseCode.SUCCESS.getCode());
