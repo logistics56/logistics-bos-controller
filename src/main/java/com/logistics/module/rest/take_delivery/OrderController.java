@@ -74,7 +74,7 @@ public class OrderController {
 	public BaseResponse deleteData(@RequestBody OrderRequest ref) {
 		BaseResponse response = new BaseResponse();
 		//生成工单号
-		String orderNum = UUID.randomUUID().toString();
+		String orderNum = UUID.randomUUID().toString().replaceAll("-", "");
 		
 		OrderDTO order = coverOrder(ref);
 		order.setcOrderNum(orderNum);
@@ -309,7 +309,7 @@ public class OrderController {
 							 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
 								 System.out.println("发送短信成功!");
 							 }else{
-								 AliSmsUtils.sendSms(courier.getcTelephone(), null, orderNum, SMSModel.SMS_129764430.getValve());
+								 AliSmsUtils.sendSms(courier.getcTelephone(), null, orderdto.getcId()+"", SMSModel.SMS_129764430.getValve());
 							 }
 						} catch (ClientException e) {
 							e.printStackTrace();
