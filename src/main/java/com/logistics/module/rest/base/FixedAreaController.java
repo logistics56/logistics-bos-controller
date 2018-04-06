@@ -107,13 +107,17 @@ public class FixedAreaController {
 	@RequestMapping(value = "/CustomersToFixedArea", method = { RequestMethod.POST })
 	public BaseResponse CustomersToFixedArea(@RequestBody FixedAreaRequest ref) {
 		BaseResponse response = new BaseResponse();
-		for (String str : ref.getAssociationCustomerIds()) {
-			int id = Integer.valueOf(str);
-			customerService.updateFixedAreaId(ref.getCustomerFixedAreaId(), id);
+		if(ref.getAssociationCustomerIds() != null){
+			for (String str : ref.getAssociationCustomerIds()) {
+				int id = Integer.valueOf(str);
+				customerService.updateFixedAreaId(ref.getCustomerFixedAreaId(), id);
+			}
 		}
-		for (String s : ref.getNoassociationCustomerIds()) {
-			int id = Integer.valueOf(s);
-			customerService.updateFixedAreaId("", id);
+		if(ref.getNoassociationCustomerIds() != null){
+			for (String s : ref.getNoassociationCustomerIds()) {
+				int id = Integer.valueOf(s);
+				customerService.updateFixedAreaId("", id);
+			}
 		}
 		return response;
 	}
@@ -129,13 +133,17 @@ public class FixedAreaController {
 	public BaseResponse couriersAndTakeTime(@RequestBody FixedAreaRequest ref) {
 		BaseResponse response = new BaseResponse();
 		System.out.println(ref.toString());
-		for (String str : ref.getAssociationCourierIds()) {
-			int id = Integer.valueOf(str);
-			courierService.updateFixedAreaId(ref.getCourierFixedAreaId(), id,ref.getTakeTimeId());
+		if(ref.getAssociationCourierIds() != null){
+			for (String str : ref.getAssociationCourierIds()) {
+				int id = Integer.valueOf(str);
+				courierService.updateFixedAreaId(ref.getCourierFixedAreaId(), id,ref.getTakeTimeId());
+			}
 		}
-		for (String s : ref.getNoassociationCourierIds()) {
-			int id = Integer.valueOf(s);
-			courierService.updateFixedAreaId("", id, 0);
+		if(ref.getNoassociationCourierIds() != null){
+			for (String s : ref.getNoassociationCourierIds()) {
+				int id = Integer.valueOf(s);
+				courierService.updateFixedAreaId("", id, 0);
+			}
 		}
 		return response;
 	}

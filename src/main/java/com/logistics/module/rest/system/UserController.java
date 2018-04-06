@@ -69,9 +69,10 @@ public class UserController {
 		user.setcRemark(ref.getRemark());
 		user.setcTelephone(ref.getTelephone());
 		user.setcUsername(ref.getUsername());
+		user.setcStation(ref.getStation());
 		int num = userService.insertSelective(user);
 		if(num > 0){
-			if(ref.getRoleIds().length>0){
+			if(ref.getRoleIds() != null){
 				for (String roleId : ref.getRoleIds()) {
 					UserRoleDTO userRole = new UserRoleDTO();
 					userRole.setcRoleId(Integer.valueOf(roleId));

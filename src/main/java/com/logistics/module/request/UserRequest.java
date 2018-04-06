@@ -18,6 +18,7 @@ public class UserRequest extends PageRequest{
 	private String telephone;
 	private Date birthday;
 	private String gender;
+	private String station;
 	private String remark;
 	private String[] roleIds;
 	public String getUsername() {
@@ -74,11 +75,16 @@ public class UserRequest extends PageRequest{
 	public void setUsernum(Integer usernum) {
 		this.usernum = usernum;
 	}
+	public String getStation() {
+		return station;
+	}
+	public void setStation(String station) {
+		this.station = station;
+	}
 	@Override
 	public String toString() {
-		return "UserRequest [usenum=" + usernum + ", username=" + username + ", password=" + password + ", nickname="
-				+ nickname + ", telephone=" + telephone + ", birthday=" + birthday + ", gender=" + gender + ", remark="
-				+ remark + ", roleIds=" + Arrays.toString(roleIds) + "]";
+		return "UserRequest [usernum=" + usernum + ", username=" + username + ", password=" + password + ", nickname="
+				+ nickname + ", telephone=" + telephone + ", birthday=" + birthday + ", gender=" + gender + ", station="
+				+ station + ", remark=" + remark + ", roleIds=" + Arrays.toString(roleIds) + "]";
 	}
-	
 }

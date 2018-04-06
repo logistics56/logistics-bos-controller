@@ -70,7 +70,7 @@ public class RoleController {
 		role.setcName(ref.getcName());
 		int num = roleService.insertSelective(role);
 		if(num == 1){
-			if(ref.getPermissionIds().length>0){
+			if(ref.getPermissionIds() != null){
 				for(String permission : ref.getPermissionIds()){
 					RolePermissionDTO rolePermission = new RolePermissionDTO();
 					rolePermission.setcPermissionId(Integer.valueOf(permission));
