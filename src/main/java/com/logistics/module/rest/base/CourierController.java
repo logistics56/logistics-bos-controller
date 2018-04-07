@@ -18,6 +18,7 @@ import com.logistics.module.dto.CourierDTO;
 import com.logistics.module.dto.StandardDTO;
 import com.logistics.module.dto.SubAreaDTO;
 import com.logistics.module.dto.TakeTimeDTO;
+import com.logistics.module.dto.UserDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.CourierRequest;
 import com.logistics.module.request.PageRequest;
@@ -28,6 +29,7 @@ import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.CourierService;
 import com.logistics.module.service.StandardService;
 import com.logistics.module.service.TakeTimeService;
+import com.logistics.module.service.UserService;
 
 /**
 *
@@ -47,6 +49,9 @@ public class CourierController {
 	
 	@Autowired
 	TakeTimeService takeTimeService;
+	
+	@Autowired
+	UserService userService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref){
@@ -98,12 +103,34 @@ public class CourierController {
 		BaseResponse response = new BaseResponse();
 		int num= 0;
 		if(ref.getcId() == null){
-			int id = courierService.queryMaxId() + 1;
-			ref.setcId(id);
-			ref.setcCourierNum("1000"+id);
-			num = courierService.insertSelective(ref);
+			
+			UserDTO user = new UserDTO();
+			user.setcNickname(ref.getcName());
+			user.setcPassword(ref.getcCheckPwd());
+			user.setcRemark("快递员");
+			user.setcTelephone(ref.getcTelephone());
+			user.setcUsername(ref.getcName());
+			user.setcStation(0+"");
+			int courierNum = userService.insertSelective(user);
+			if(courierNum > 0){
+				int id = courierService.queryMaxId() + 1;
+				ref.setcId(id);
+				ref.setcCourierNum(courierNum+"");
+				num = courierService.insertSelective(ref);
+			}else{
+				num = 0;
+			}
 		}else{
-			num = courierService.updateByPrimaryKey(ref);
+			UserDTO user = new UserDTO();
+			user.setcId(Integer.valueOf(ref.getcCourierNum()));
+			user.setcNickname(ref.getcName());
+			user.setcUsername(ref.getcName());
+			user.setcPassword(ref.getcCheckPwd());
+			user.setcTelephone(ref.getcTelephone());
+			num = userService.updateByPrimaryKeySelective(user);
+			if(num > 0){
+				num = courierService.updateByPrimaryKey(ref);
+			}
 		}
 		if(num == 1){
 			response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
@@ -114,20 +141,6 @@ public class CourierController {
 		}
 		return response;
 	}
-	@RequestMapping(value = "/deleteData", method = { RequestMethod.POST })
-	public BaseResponse deleteData(@RequestBody CourierRequest ref){
-		BaseResponse response = new BaseResponse();
-		String ids = ref.getIds();
-		String[] idArra = ids.split(",");
-		for (String str : idArra) {
-			int id = Integer.valueOf(str);
-			courierService.deleteData(id);
-		}
-		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
-		response.setResult(ResponseCode.SUCCESS.getCode());
-		return response;
-	}
-	
 	
 	@RequestMapping(value = "/queryByFixedAreaId", method = { RequestMethod.POST })
 	public PageResponse queryByFixedAreaId(PageRequest ref) {

@@ -18,6 +18,7 @@ import com.logistics.module.request.PageRequest;
 import com.logistics.module.request.UserRequest;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
+import com.logistics.module.service.CourierService;
 import com.logistics.module.service.UserRoleService;
 import com.logistics.module.service.UserService;
 
@@ -36,6 +37,10 @@ public class UserController {
 	
 	@Autowired
 	UserRoleService userRoleService;
+	
+	
+	@Autowired
+	CourierService courierService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(UserRequest ref){
@@ -96,6 +101,7 @@ public class UserController {
 		for (String str : idArra) {
 			userService.deleteSelect(Integer.valueOf(str));
 			userRoleService.deleteByUserId(Integer.valueOf(str));
+			courierService.deleteData(str);
 		}
 		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 		response.setResult(ResponseCode.SUCCESS.getCode());
