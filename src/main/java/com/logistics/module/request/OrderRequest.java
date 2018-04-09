@@ -26,6 +26,8 @@ public class OrderRequest {
 	private String sendProNum;
 	private String payTypeNum;
 	private String sendMobileMsg;
+	private String price;
+	private String vol;
 	public String getTelephone() {
 		return telephone;
 	}
@@ -128,6 +130,18 @@ public class OrderRequest {
 	public void setSendMobileMsg(String sendMobileMsg) {
 		this.sendMobileMsg = sendMobileMsg;
 	}
+	public String getPrice() {
+		return price;
+	}
+	public void setPrice(String price) {
+		this.price = price;
+	}
+	public String getVol() {
+		return vol;
+	}
+	public void setVol(String vol) {
+		this.vol = vol;
+	}
 	@Override
 	public String toString() {
 		return "OrderRequest [telephone=" + telephone + ", sendName=" + sendName + ", sendMobile=" + sendMobile
@@ -135,8 +149,7 @@ public class OrderRequest {
 				+ ", recName=" + recName + ", recMobile=" + recMobile + ", recCompany=" + recCompany + ", recAddress="
 				+ recAddress + ", recAreaInfo=" + recAreaInfo + ", goodsType=" + goodsType + ", weight=" + weight
 				+ ", remark=" + remark + ", sendProNum=" + sendProNum + ", payTypeNum=" + payTypeNum
-				+ ", sendMobileMsg=" + sendMobileMsg + "]";
+				+ ", sendMobileMsg=" + sendMobileMsg + ", price=" + price + ", vol=" + vol + "]";
 	}
-	
 	
 }

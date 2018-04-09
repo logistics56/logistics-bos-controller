@@ -71,7 +71,7 @@ public class OrderController {
 	 * @return
 	 */
 	@RequestMapping(value = "/placeAnOrder", method = { RequestMethod.POST })
-	public BaseResponse deleteData(@RequestBody OrderRequest ref) {
+	public BaseResponse placeAnOrder(@RequestBody OrderRequest ref) {
 		BaseResponse response = new BaseResponse();
 		//生成工单号
 		String orderNum = UUID.randomUUID().toString().replaceAll("-", "");
