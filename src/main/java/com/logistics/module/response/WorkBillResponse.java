@@ -10,6 +10,8 @@ import java.util.Date;
 */
 public class WorkBillResponse {
 	
+	private int cId;
+	
 	private String userName;
 	
 	private String orderNum;
@@ -48,6 +50,14 @@ public class WorkBillResponse {
 
 	public void setTime(Date time) {
 		this.time = time;
+	}
+
+	public int getcId() {
+		return cId;
+	}
+
+	public void setcId(int cId) {
+		this.cId = cId;
 	}
 	
 	

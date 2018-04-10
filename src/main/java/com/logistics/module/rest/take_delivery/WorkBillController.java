@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,9 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.logistics.module.dto.CourierDTO;
 import com.logistics.module.dto.OrderDTO;
 import com.logistics.module.dto.WorkBillDTO;
+import com.logistics.module.enums.ResponseCode;
+import com.logistics.module.request.DeleteIds;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.WorkBillResponse;
+import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.CourierService;
 import com.logistics.module.service.OrderService;
 import com.logistics.module.service.WorkBillService;
@@ -112,6 +116,7 @@ public class WorkBillController {
 			if(!CollectionUtils.isEmpty(rows1)){
 				for (WorkBillDTO workBillDTO : rows1) {
 					WorkBillResponse row = new WorkBillResponse();
+					row.setcId(workBillDTO.getcId());
 					CourierDTO courier = courierService.selectByPrimaryKey(workBillDTO.getcCourier());
 					if(courier != null){
 						row.setUserName(courier.getcName());
@@ -159,6 +164,21 @@ public class WorkBillController {
 			response.setTotal(total);
 			response.setRows(rows);
 		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/updateDataStatus", method = { RequestMethod.POST })
+	public BaseResponse deleteData(@RequestBody DeleteIds ref){
+		BaseResponse response = new BaseResponse();
+		String ids = ref.getIds();
+		System.out.println(ids);
+		String[] idArra = ids.split(",");
+		for (String str : idArra) {
+			workBillService.updateState(Integer.valueOf(str));
+		}
+		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		response.setResult(ResponseCode.SUCCESS.getCode());
+		
 		return response;
 	}
 
