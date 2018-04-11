@@ -371,4 +371,14 @@ public class OrderController {
 		return response;
 	}
 	
+	@RequestMapping(value = "/findById", method = { RequestMethod.POST })
+	public BaseResponse findById(@RequestBody OrderRequest ref){
+		BaseResponse response = new BaseResponse();
+		OrderDTO order = orderService.selectByPrimaryKey(ref.getId());
+		response.setObj(order);
+		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		response.setResult(ResponseCode.SUCCESS.getCode());
+		return response;
+	}
+	
 }

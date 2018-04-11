@@ -12,6 +12,8 @@ public class BaseResponse {
 	private int result;
 	private String requestId;
 	
+	private Object obj;
+	
 	private CustomerDTO user;
 	
 	private List allOrderStatus;
@@ -85,6 +87,14 @@ public class BaseResponse {
 
 	public void setAllOrderStatus(List allOrderStatus) {
 		this.allOrderStatus = allOrderStatus;
+	}
+
+	public Object getObj() {
+		return obj;
+	}
+
+	public void setObj(Object obj) {
+		this.obj = obj;
 	}
 
 

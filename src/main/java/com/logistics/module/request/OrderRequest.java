@@ -6,6 +6,7 @@ package com.logistics.module.request;
 * 
 */
 public class OrderRequest {
+	private int id;
 	private String telephone;
 	//寄件人信息
 	private String sendName;
@@ -141,6 +142,13 @@ public class OrderRequest {
 	}
 	public void setVol(String vol) {
 		this.vol = vol;
+	}
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
 	}
 	@Override
 	public String toString() {

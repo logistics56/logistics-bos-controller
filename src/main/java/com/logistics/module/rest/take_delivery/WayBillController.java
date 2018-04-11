@@ -12,11 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.logistics.module.dto.OrderDTO;
 import com.logistics.module.dto.WayBillDTO;
+import com.logistics.module.dto.WorkBillDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.OrderRequest;
+import com.logistics.module.request.WayBillRequest;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.OrderService;
 import com.logistics.module.service.WayBillService;
+import com.logistics.module.service.WorkBillService;
 
 import sms.util.MailUtils;
 
@@ -35,6 +38,9 @@ public class WayBillController {
 	
 	@Autowired
 	OrderService orderService;
+	
+	@Autowired
+	WorkBillService workBillService;
 	
 	/**
 	 * 下单
@@ -115,6 +121,59 @@ public class WayBillController {
 		order.setcOrderType("2");
 		return order;
 		
+	}
+	
+	/**
+	 * 下单
+	 * @param ref
+	 * @return
+	 */
+	@RequestMapping(value = "/mokeWayBill", method = { RequestMethod.POST })
+	public BaseResponse mokeWayBill(@RequestBody WayBillRequest ref) {
+		BaseResponse response = new BaseResponse();
+		System.out.println(ref.toString());
+		OrderDTO orderdto = orderService.selectByPrimaryKey(ref.getOrderId());
+		WayBillDTO wayBill = new WayBillDTO();
+		wayBill.setcActlweit(Double.valueOf(ref.getActlweit()));
+		wayBill.setcArriveCity(ref.getcRecAddress());
+		wayBill.setcDeltag("是");
+		wayBill.setcFeeitemnum(Integer.valueOf(ref.getRealNum()));
+		wayBill.setcFloadreqr(ref.getPrice());
+		wayBill.setcGoodsType(ref.getcGoodsType());
+		wayBill.setcNum(1);
+		wayBill.setcPayTypeNum(ref.getcPayTypeNum());
+		wayBill.setcSendAddress(ref.getcSendAddress());
+		wayBill.setcSendAreaId(orderdto.getcSendAreaId());
+		wayBill.setcSendCompany(ref.getcSendCompany());
+		wayBill.setcSendMobile(ref.getcSendMobile());
+		wayBill.setcSendName(ref.getcSendName());
+		wayBill.setcRemark(orderdto.getcRemark());
+		wayBill.setcSendProNum(ref.getcSendProNum());
+		wayBill.setcSignStatus(2);
+		wayBill.setcVol(ref.getVol());
+		wayBill.setcWayBillNum(ref.getcOrderNum());
+		wayBill.setcWayBillType("正常");
+		wayBill.setcWeight(Double.valueOf(ref.getcWeight()));
+		wayBill.setcOrderId(ref.getOrderId());
+		wayBill.setcRecAddress(ref.getcRecAddress());
+		wayBill.setcRecAreaId(orderdto.getcRecAreaId());
+		wayBill.setcRecCompany(ref.getcRecCompany());
+		wayBill.setcRecMobile(ref.getcRecMobile());
+		wayBill.setcRecName(ref.getcRecName());
+		int num = wayBillService.insertSelective(wayBill);
+		if(num == 1){
+			orderService.updateStatusById("2", orderdto.getcId());
+			WorkBillDTO dto = workBillService.queryByOrderId(ref.getOrderId());
+			if(dto != null){
+				workBillService.updateState(dto.getcId());
+			}
+			response.setResult(ResponseCode.SUCCESS.getCode());
+			response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		}else{
+			response.setResult(ResponseCode.FAILED.getCode());
+			response.setErrorMsg(ResponseCode.FAILED.getMsg());
+		}
+		return response;
 	}
 
 }
