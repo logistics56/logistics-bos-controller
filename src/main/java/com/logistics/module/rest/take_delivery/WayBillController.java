@@ -1,6 +1,7 @@
 package com.logistics.module.rest.take_delivery;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,19 +10,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.logistics.module.dto.OrderDTO;
 import com.logistics.module.dto.WayBillDTO;
 import com.logistics.module.dto.WorkBillDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.OrderRequest;
+import com.logistics.module.request.PageRequest;
 import com.logistics.module.request.WayBillRequest;
+import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.OrderService;
 import com.logistics.module.service.WayBillService;
 import com.logistics.module.service.WorkBillService;
-
-import sms.util.MailUtils;
+import com.logistics.module.util.POIUtil;
 
 /**
 *
@@ -131,7 +134,6 @@ public class WayBillController {
 	@RequestMapping(value = "/mokeWayBill", method = { RequestMethod.POST })
 	public BaseResponse mokeWayBill(@RequestBody WayBillRequest ref) {
 		BaseResponse response = new BaseResponse();
-		System.out.println(ref.toString());
 		OrderDTO orderdto = orderService.selectByPrimaryKey(ref.getOrderId());
 		WayBillDTO wayBill = new WayBillDTO();
 		wayBill.setcActlweit(Double.valueOf(ref.getActlweit()));
@@ -174,6 +176,129 @@ public class WayBillController {
 			response.setErrorMsg(ResponseCode.FAILED.getMsg());
 		}
 		return response;
+	}
+	
+	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
+	public PageResponse queryPageData(PageRequest ref){
+		PageResponse response = new PageResponse();
+		
+		int total = wayBillService.queryTotal();
+		int pageNum = (ref.getPage()-1) * ref.getRows();
+		List<WayBillDTO> rows = wayBillService.queryByPage( pageNum, ref.getRows());
+		response.setTotal(total);
+		response.setRows(rows);
+		
+		return response;
+	}
+	
+	@RequestMapping(value = "/fileImport", method = { RequestMethod.POST })
+	public int fileImport(MultipartFile file) throws Exception {
+		// 判断文件是否存在
+		if (null == file) {
+			return ResponseCode.FAILED.getCode();
+		}
+
+		List<String []> list = POIUtil.readExcel(file);
+		for (String[] strings : list) {
+			System.out.println(strings.length);
+			if(Integer.valueOf(strings[0]) == 0){
+						//生成工单号
+						String orderNum = UUID.randomUUID().toString().replaceAll("-", "");
+						OrderDTO order = new OrderDTO();
+						order.setcSendName(strings[3]);
+						order.setcSendMobile(strings[4]);
+						order.setcSendCompany(strings[5]);
+						order.setcSendAddress(strings[6]);
+						order.setcRecName(strings[7]);
+						order.setcRecMobile(strings[8]);
+						order.setcRecCompany(strings[9]);
+						order.setcRecAddress(strings[10]);
+						order.setcGoodsType(strings[11]);
+						order.setcWeight(Double.valueOf(strings[12]));
+						order.setcSendProNum(strings[13]);
+						order.setcPayTypeNum(strings[14]);
+						order.setcRemark(strings[15]);
+						order.setcOrderTime(new Date());
+						order.setcOrderNum(orderNum);
+						order.setcStatus("1");
+						order.setcOrderType("2");
+						order.setcOrderNum(orderNum);
+						int num = orderService.insertSelective(order);
+						if(num == 1){
+							OrderDTO orderdto = orderService.queryByOrderNum(orderNum);
+							WayBillDTO wayBill = new WayBillDTO();
+							wayBill.setcActlweit(Double.valueOf(strings[12]));
+							wayBill.setcArriveCity(strings[10]);
+							wayBill.setcDeltag("是");
+							wayBill.setcFeeitemnum(1);
+							wayBill.setcFloadreqr(strings[1]);
+							wayBill.setcGoodsType(strings[11]);
+							wayBill.setcNum(1);
+							wayBill.setcPayTypeNum(strings[14]);
+							wayBill.setcSendAddress(strings[6]);
+							wayBill.setcSendAreaId(orderdto.getcSendAreaId());
+							wayBill.setcSendCompany(orderdto.getcSendCompany());
+							wayBill.setcSendMobile(orderdto.getcSendMobile());
+							wayBill.setcSendName(orderdto.getcSendName());
+							wayBill.setcRemark(orderdto.getcRemark());
+							wayBill.setcSendProNum(orderdto.getcSendProNum());
+							wayBill.setcSignStatus(2);
+							wayBill.setcVol(strings[2]);
+							wayBill.setcWayBillNum(orderNum);
+							wayBill.setcWayBillType("正常");
+							wayBill.setcWeight(Double.valueOf(strings[12]));
+							wayBill.setcOrderId(orderdto.getcId());
+							wayBill.setcRecAddress(orderdto.getcRecAddress());
+							wayBill.setcRecAreaId(orderdto.getcRecAreaId());
+							wayBill.setcRecCompany(orderdto.getcRecCompany());
+							wayBill.setcRecMobile(orderdto.getcRecMobile());
+							wayBill.setcRecName(orderdto.getcRecName());
+							num = wayBillService.insertSelective(wayBill);
+							if(num ==1){
+								num = orderService.updateStatusById("2", orderdto.getcId());
+							}
+					}
+			}else{
+				OrderDTO orderdto = orderService.selectByPrimaryKey(Integer.valueOf(strings[0]));
+				WayBillDTO wayBill = new WayBillDTO();
+				wayBill.setcActlweit(Double.valueOf(orderdto.getcWeight()));
+				wayBill.setcArriveCity(orderdto.getcRecAddress());
+				wayBill.setcDeltag("是");
+				wayBill.setcFeeitemnum(Integer.valueOf(1));
+				wayBill.setcFloadreqr(strings[1]);
+				wayBill.setcGoodsType(orderdto.getcGoodsType());
+				wayBill.setcNum(1);
+				wayBill.setcPayTypeNum(orderdto.getcPayTypeNum());
+				wayBill.setcSendAddress(orderdto.getcSendAddress());
+				wayBill.setcSendAreaId(orderdto.getcSendAreaId());
+				wayBill.setcSendCompany(orderdto.getcSendCompany());
+				wayBill.setcSendMobile(orderdto.getcSendMobile());
+				wayBill.setcSendName(orderdto.getcSendName());
+				wayBill.setcRemark(orderdto.getcRemark());
+				wayBill.setcSendProNum(orderdto.getcSendProNum());
+				wayBill.setcSignStatus(2);
+				wayBill.setcVol(strings[2]);
+				wayBill.setcWayBillNum(orderdto.getcOrderNum());
+				wayBill.setcWayBillType("正常");
+				wayBill.setcWeight(Double.valueOf(orderdto.getcWeight()));
+				wayBill.setcOrderId(orderdto.getcId());
+				wayBill.setcRecAddress(orderdto.getcRecAddress());
+				wayBill.setcRecAreaId(orderdto.getcRecAreaId());
+				wayBill.setcRecCompany(orderdto.getcRecCompany());
+				wayBill.setcRecMobile(orderdto.getcRecMobile());
+				wayBill.setcRecName(orderdto.getcRecName());
+				int num = wayBillService.insertSelective(wayBill);
+				if(num == 1){
+					orderService.updateStatusById("2", orderdto.getcId());
+					WorkBillDTO dto = workBillService.queryByOrderId(orderdto.getcId());
+					if(dto != null){
+						workBillService.updateState(dto.getcId());
+					}
+				}
+			}
+		}
+		
+		return ResponseCode.SUCCESS.getCode();
 	}
 
 }
