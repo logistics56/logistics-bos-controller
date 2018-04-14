@@ -1,9 +1,21 @@
 package com.logistics.module.rest.take_delivery;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +39,27 @@ import com.logistics.module.service.OrderService;
 import com.logistics.module.service.TransitInfoService;
 import com.logistics.module.service.WayBillService;
 import com.logistics.module.service.WorkBillService;
+import com.logistics.module.util.FileUtils;
 import com.logistics.module.util.POIUtil;
+import com.lowagie.text.BadElementException;
+import com.lowagie.text.Cell;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.Table;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfWriter;
+
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRExporterParameter;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
 
 /**
 *
@@ -371,5 +403,232 @@ public class WayBillController {
 		
 		return response;
 	}
+	
+	@RequestMapping(value = "/exportXls", method = { RequestMethod.POST })
+	public void exportXls(WayBillSearchRequest ref, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String orderNum;
+		String sendAddress;
+		String recAddress;
+		String sendProNum;
+		Integer signStatus;
+		if(StringUtils.isEmpty(ref.getOrderNum())){
+			orderNum = null;
+		}else{
+			orderNum = ref.getOrderNum();
+		}
+		if(StringUtils.isEmpty(ref.getSendAddress())){
+			sendAddress = null;
+		}else{
+			sendAddress = ref.getSendAddress();
+		}
+		if(StringUtils.isEmpty(ref.getRecAddress())){
+			recAddress = null;
+		}else{
+			recAddress = ref.getRecAddress();
+		}
+		if(StringUtils.isEmpty(ref.getSendProNum())){
+			sendProNum = null;
+		}else{
+			sendProNum = ref.getSendProNum();
+		}
+		if(StringUtils.isEmpty(ref.getSignStatus())){
+			signStatus = 0;
+		}else{
+			signStatus = Integer.valueOf(ref.getSignStatus());
+		}
+		// 查询出 满足当前条件 结果数据
+		List<WayBillDTO> wayBills = wayBillService.findWayBills(orderNum, sendAddress, recAddress, sendProNum, signStatus);
+		// 生成Excel文件
+		HSSFWorkbook hssfWorkbook = new HSSFWorkbook();
+		HSSFSheet sheet = hssfWorkbook.createSheet("运单数据");
+		// 表头
+		HSSFRow headRow = sheet.createRow(0);
+		headRow.createCell(0).setCellValue("运单号");
+		headRow.createCell(1).setCellValue("寄件人");
+		headRow.createCell(2).setCellValue("寄件人电话");
+		headRow.createCell(3).setCellValue("寄件人地址");
+		headRow.createCell(4).setCellValue("收件人");
+		headRow.createCell(5).setCellValue("收件人电话");
+		headRow.createCell(6).setCellValue("收件人地址");
+		// 表格数据
+		for (WayBillDTO wayBill : wayBills) {
+			HSSFRow dataRow = sheet.createRow(sheet.getLastRowNum() + 1);
+			dataRow.createCell(0).setCellValue(wayBill.getcWayBillNum());
+			dataRow.createCell(1).setCellValue(wayBill.getcSendName());
+			dataRow.createCell(2).setCellValue(wayBill.getcSendMobile());
+			dataRow.createCell(3).setCellValue(wayBill.getcSendAddress());
+			dataRow.createCell(4).setCellValue(wayBill.getcRecName());
+			dataRow.createCell(5).setCellValue(wayBill.getcRecMobile());
+			dataRow.createCell(6).setCellValue(wayBill.getcRecAddress());
+		}
 
+		// 下载导出
+		// 设置头信息
+		response.setContentType("application/vnd.ms-excel");
+		String filename = "运单数据.xls";
+		String agent = request.getHeader("user-agent");
+		filename = FileUtils.encodeDownloadFilename(filename, agent);
+		response.setHeader("Content-Disposition","attachment;filename=" + filename);
+
+		ServletOutputStream outputStream = response.getOutputStream();
+		hssfWorkbook.write(outputStream);
+
+		// 关闭
+		hssfWorkbook.close();
+	}
+	
+	@RequestMapping(value = "/exportPdf", method = { RequestMethod.POST })
+	public void exportPdf(WayBillSearchRequest ref, HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException {
+		String orderNum;
+		String sendAddress;
+		String recAddress;
+		String sendProNum;
+		Integer signStatus;
+		if(StringUtils.isEmpty(ref.getOrderNum())){
+			orderNum = null;
+		}else{
+			orderNum = ref.getOrderNum();
+		}
+		if(StringUtils.isEmpty(ref.getSendAddress())){
+			sendAddress = null;
+		}else{
+			sendAddress = ref.getSendAddress();
+		}
+		if(StringUtils.isEmpty(ref.getRecAddress())){
+			recAddress = null;
+		}else{
+			recAddress = ref.getRecAddress();
+		}
+		if(StringUtils.isEmpty(ref.getSendProNum())){
+			sendProNum = null;
+		}else{
+			sendProNum = ref.getSendProNum();
+		}
+		if(StringUtils.isEmpty(ref.getSignStatus())){
+			signStatus = 0;
+		}else{
+			signStatus = Integer.valueOf(ref.getSignStatus());
+		}
+		// 查询出 满足当前条件 结果数据
+		List<WayBillDTO> wayBills = wayBillService.findWayBills(orderNum, sendAddress, recAddress, sendProNum, signStatus);
+		// 下载导出
+		// 设置头信息
+		response.setContentType("application/pdf");
+		String filename = "运单数据.pdf";
+		String agent = request.getHeader("user-agent");
+		filename = FileUtils.encodeDownloadFilename(filename, agent);
+		response.setHeader("Content-Disposition","attachment;filename=" + filename);
+
+		// 生成PDF文件
+		Document document = new Document();
+		PdfWriter.getInstance(document, response.getOutputStream());
+		document.open();
+		// 写PDF数据
+		// 向document 生成pdf表格
+		Table table = new Table(7);
+		table.setWidth(90); // 宽度
+		table.setBorder(1); // 边框
+		table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER); // 水平对齐方式
+		table.getDefaultCell().setVerticalAlignment(Element.ALIGN_TOP); // 垂直对齐方式
+
+		// 设置表格字体
+		BaseFont cn = BaseFont.createFont("STSongStd-Light", "UniGB-UCS2-H",
+				false);
+		Font font1 = new Font(cn, 10, Font.NORMAL, Color.RED);
+		Font font = new Font(cn, 10, Font.NORMAL, Color.BLUE);
+
+		// 写表头
+		table.addCell(buildCell("运单号", font1));
+		table.addCell(buildCell("寄件人", font1));
+		table.addCell(buildCell("寄件人电话", font1));
+		table.addCell(buildCell("寄件人地址", font1));
+		table.addCell(buildCell("收件人", font1));
+		table.addCell(buildCell("收件人电话", font1));
+		table.addCell(buildCell("收件人地址", font1));
+		// 写数据
+		for (WayBillDTO wayBill : wayBills) {
+			table.addCell(buildCell(wayBill.getcWayBillNum(), font));
+			table.addCell(buildCell(wayBill.getcSendName(), font));
+			table.addCell(buildCell(wayBill.getcSendMobile(), font));
+			table.addCell(buildCell(wayBill.getcSendAddress(), font));
+			table.addCell(buildCell(wayBill.getcRecName(), font));
+			table.addCell(buildCell(wayBill.getcRecMobile(), font));
+			table.addCell(buildCell(wayBill.getcRecAddress(), font));
+		}
+		// 将表格加入文档
+		document.add(table);
+
+		document.close();
+
+	}
+
+	private Cell buildCell(String content, Font font)
+			throws BadElementException {
+		Phrase phrase = new Phrase(content, font);
+		return new Cell(phrase);
+	}
+
+	@RequestMapping(value = "/exportJasperPdf", method = { RequestMethod.POST })
+	public void exportJasperPdf(WayBillSearchRequest ref, HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException, JRException, SQLException {
+		String orderNum;
+		String sendAddress;
+		String recAddress;
+		String sendProNum;
+		Integer signStatus;
+		if(StringUtils.isEmpty(ref.getOrderNum())){
+			orderNum = null;
+		}else{
+			orderNum = ref.getOrderNum();
+		}
+		if(StringUtils.isEmpty(ref.getSendAddress())){
+			sendAddress = null;
+		}else{
+			sendAddress = ref.getSendAddress();
+		}
+		if(StringUtils.isEmpty(ref.getRecAddress())){
+			recAddress = null;
+		}else{
+			recAddress = ref.getRecAddress();
+		}
+		if(StringUtils.isEmpty(ref.getSendProNum())){
+			sendProNum = null;
+		}else{
+			sendProNum = ref.getSendProNum();
+		}
+		if(StringUtils.isEmpty(ref.getSignStatus())){
+			signStatus = 0;
+		}else{
+			signStatus = Integer.valueOf(ref.getSignStatus());
+		}
+		// 查询出 满足当前条件 结果数据
+		List<WayBillDTO> wayBills = wayBillService.findWayBills(orderNum, sendAddress, recAddress, sendProNum, signStatus);
+
+		// 下载导出
+		// 设置头信息
+		response.setContentType("application/pdf");
+		String filename = "运单数据.pdf";
+		String agent = request.getHeader("user-agent");
+		filename = FileUtils.encodeDownloadFilename(filename, agent);
+		response.setHeader("Content-Disposition", "attachment;filename=" + filename);
+
+		// 根据 jasperReport模板 生成pdf
+		// 读取模板文件
+		String jrxml = WayBillController.class.getClassLoader().getResource("jasper/waybill.jrxml").getPath();
+		JasperReport report = JasperCompileManager.compileReport(jrxml);
+
+		// 设置模板数据
+		// Parameter变量
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("company", "駃达快递");
+		// Field变量
+		JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters,
+				new JRBeanCollectionDataSource(wayBills));
+		// 生成PDF客户端
+		JRPdfExporter exporter = new JRPdfExporter();
+		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
+		exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, response.getOutputStream());
+		exporter.exportReport();// 导出
+		response.getOutputStream().close();
+
+	}
 }
