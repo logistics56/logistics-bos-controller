@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +17,7 @@ import com.logistics.module.dto.OrderDTO;
 import com.logistics.module.dto.WorkBillDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.DeleteIds;
+import com.logistics.module.request.OrderRequest;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.WorkBillResponse;
@@ -179,6 +181,41 @@ public class WorkBillController {
 		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 		response.setResult(ResponseCode.SUCCESS.getCode());
 		
+		return response;
+	}
+	
+	
+	@RequestMapping(value = "/queryAllData", method = { RequestMethod.POST })
+	public PageResponse queryAllData(PageRequest ref){
+		PageResponse response = new PageResponse();
+		
+		int id =0;
+		if(StringUtils.isEmpty(ref.getSearchStr())){
+			id = 0;
+		}else{
+			id = Integer.valueOf(ref.getSearchStr());
+		}
+		
+		int total = workBillService.queryTotal(id);
+		int pageNum = (ref.getPage()-1) * ref.getRows();
+		List<WorkBillDTO> rows = workBillService.queryByPage(id, pageNum, ref.getRows());
+		response.setTotal(total);
+		response.setRows(rows);
+		return response;
+	}
+	
+	@RequestMapping(value = "/changeWorkBill", method = { RequestMethod.POST })
+	public BaseResponse changeWorkBill(@RequestBody OrderRequest ref){
+		BaseResponse response = new BaseResponse();
+		
+		WorkBillDTO workBill = workBillService.selectByPrimaryKey(ref.getId());
+		if(workBill != null){
+			orderService.updateOrderType("2", ref.getCourierId(), workBill.getcOrderId());
+			workBillService.updateCourierId(ref.getCourierId(), ref.getId());
+		}
+		
+		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		response.setResult(ResponseCode.SUCCESS.getCode());
 		return response;
 	}
 
