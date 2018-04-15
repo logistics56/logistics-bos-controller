@@ -24,7 +24,9 @@ import com.logistics.module.dto.SubAreaDTO;
 import com.logistics.module.dto.WorkBillDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.OrderRequest;
+import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.OrderResponse;
+import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.AreaService;
 import com.logistics.module.service.CourierService;
@@ -375,6 +377,59 @@ public class OrderController {
 		BaseResponse response = new BaseResponse();
 		OrderDTO order = orderService.selectByPrimaryKey(ref.getId());
 		response.setObj(order);
+		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		response.setResult(ResponseCode.SUCCESS.getCode());
+		return response;
+	}
+	
+	@RequestMapping(value = "/queryPageDataByNoHandle", method = { RequestMethod.POST })
+	public PageResponse queryPageDataByNoHandle(PageRequest ref){
+		PageResponse response = new PageResponse();
+		
+		int total = orderService.queryTotal();
+		int pageNum = (ref.getPage()-1) * ref.getRows();
+		List<OrderDTO> rows = orderService.queryByPage( pageNum, ref.getRows());
+		response.setTotal(total);
+		response.setRows(rows);
+		
+		return response;
+	}
+	
+	@RequestMapping(value = "/dispatcher", method = { RequestMethod.POST })
+	public BaseResponse dispatcher(@RequestBody OrderRequest ref){
+		BaseResponse response = new BaseResponse();
+		
+		int num = orderService.updateOrderType("2", ref.getCourierId(), ref.getId());
+		if(num == 1){
+			CourierDTO courier = courierService.selectByPrimaryKey(ref.getCourierId());
+			if(courier != null){
+				//发送短信------------
+				if(AliSmsUtils.status == 1){
+					try {
+						SendSmsResponse smsResponse = AliSmsUtils.sendSms(courier.getcTelephone(), null, ref.getId()+"", SMSModel.SMS_129764430.getValve());
+						 if(smsResponse.getCode() != null && smsResponse.getCode().equals("OK")) { 
+							 System.out.println("发送短信成功!");
+						 }else{
+							 AliSmsUtils.sendSms(courier.getcTelephone(), null, ref.getId()+"", SMSModel.SMS_129764430.getValve());
+						 }
+					} catch (ClientException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			//生成工单
+			WorkBillDTO workBill = new WorkBillDTO();
+			workBill.setcAttachbilltimes(0);
+			workBill.setcBuildtime(new Date());
+			workBill.setcPickstate("0");
+			workBill.setcRemark(ref.getRemark());
+			workBill.setcSmsnumber(SMSModel.SMS_129764430.getValve());
+			workBill.setcType("已通知");
+			workBill.setcCourier(courier.getcId());
+			workBill.setcOrderId(ref.getId());
+			workBillService.insertSelective(workBill);
+		}
+		
 		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
 		response.setResult(ResponseCode.SUCCESS.getCode());
 		return response;

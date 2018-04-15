@@ -1,30 +1,24 @@
 package com.logistics.module.rest.base;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.logistics.module.dto.AreaDTO;
 import com.logistics.module.dto.CourierDTO;
 import com.logistics.module.dto.StandardDTO;
-import com.logistics.module.dto.SubAreaDTO;
 import com.logistics.module.dto.TakeTimeDTO;
 import com.logistics.module.dto.UserDTO;
 import com.logistics.module.enums.ResponseCode;
-import com.logistics.module.request.CourierRequest;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.response.CourierResponse;
 import com.logistics.module.response.PageResponse;
-import com.logistics.module.response.SubAreaResponse;
 import com.logistics.module.response.base.BaseResponse;
 import com.logistics.module.service.CourierService;
 import com.logistics.module.service.StandardService;
@@ -171,5 +165,12 @@ public class CourierController {
 		
 		return response;
 	}
+	
+	@RequestMapping(value = "/queryAll", method = { RequestMethod.POST })
+	public List<CourierDTO> queryAll(){
+		List<CourierDTO> rows = courierService.queryAll();
+		return rows;
+	}
+
 	
 }

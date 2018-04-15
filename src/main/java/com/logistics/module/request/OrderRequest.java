@@ -29,6 +29,9 @@ public class OrderRequest {
 	private String sendMobileMsg;
 	private String price;
 	private String vol;
+	
+	private String orderNum;
+	private int courierId;
 	public String getTelephone() {
 		return telephone;
 	}
@@ -150,14 +153,29 @@ public class OrderRequest {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	public String getOrderNum() {
+		return orderNum;
+	}
+	public void setOrderNum(String orderNum) {
+		this.orderNum = orderNum;
+	}
+	
+	public int getCourierId() {
+		return courierId;
+	}
+	public void setCourierId(int courierId) {
+		this.courierId = courierId;
+	}
 	@Override
 	public String toString() {
-		return "OrderRequest [telephone=" + telephone + ", sendName=" + sendName + ", sendMobile=" + sendMobile
-				+ ", sendCompany=" + sendCompany + ", sendAddress=" + sendAddress + ", sendAreaInfo=" + sendAreaInfo
-				+ ", recName=" + recName + ", recMobile=" + recMobile + ", recCompany=" + recCompany + ", recAddress="
-				+ recAddress + ", recAreaInfo=" + recAreaInfo + ", goodsType=" + goodsType + ", weight=" + weight
-				+ ", remark=" + remark + ", sendProNum=" + sendProNum + ", payTypeNum=" + payTypeNum
-				+ ", sendMobileMsg=" + sendMobileMsg + ", price=" + price + ", vol=" + vol + "]";
+		return "OrderRequest [id=" + id + ", telephone=" + telephone + ", sendName=" + sendName + ", sendMobile="
+				+ sendMobile + ", sendCompany=" + sendCompany + ", sendAddress=" + sendAddress + ", sendAreaInfo="
+				+ sendAreaInfo + ", recName=" + recName + ", recMobile=" + recMobile + ", recCompany=" + recCompany
+				+ ", recAddress=" + recAddress + ", recAreaInfo=" + recAreaInfo + ", goodsType=" + goodsType
+				+ ", weight=" + weight + ", remark=" + remark + ", sendProNum=" + sendProNum + ", payTypeNum="
+				+ payTypeNum + ", sendMobileMsg=" + sendMobileMsg + ", price=" + price + ", vol=" + vol + ", orderNum="
+				+ orderNum + ", courierId=" + courierId + "]";
 	}
 	
 }
