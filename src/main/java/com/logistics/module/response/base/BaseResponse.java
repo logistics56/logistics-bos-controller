@@ -18,6 +18,8 @@ public class BaseResponse {
 	
 	private List allOrderStatus;
 	
+	private List orderProgress;
+	
 	/**
 	 * 默认返回码为1：成功
 	 */
@@ -95,6 +97,14 @@ public class BaseResponse {
 
 	public void setObj(Object obj) {
 		this.obj = obj;
+	}
+
+	public List getOrderProgress() {
+		return orderProgress;
+	}
+
+	public void setOrderProgress(List orderProgress) {
+		this.orderProgress = orderProgress;
 	}
 
 

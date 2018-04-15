@@ -19,9 +19,11 @@ import com.logistics.module.dto.SignInfoDTO;
 import com.logistics.module.dto.TransitInfoDTO;
 import com.logistics.module.dto.UserDTO;
 import com.logistics.module.dto.WayBillDTO;
+import com.logistics.module.dto.WorkBillDTO;
 import com.logistics.module.enums.ResponseCode;
 import com.logistics.module.request.PageRequest;
 import com.logistics.module.request.TransitInfoRequest;
+import com.logistics.module.response.OrderProgressResponse;
 import com.logistics.module.response.PageResponse;
 import com.logistics.module.response.TransitInfoResponse;
 import com.logistics.module.response.base.BaseResponse;
@@ -32,6 +34,8 @@ import com.logistics.module.service.SignInfoService;
 import com.logistics.module.service.TransitInfoService;
 import com.logistics.module.service.UserService;
 import com.logistics.module.service.WayBillService;
+import com.logistics.module.service.WorkBillService;
+import com.logistics.module.util.TimeUtils;
 
 /**
 *
@@ -63,6 +67,9 @@ public class TransitInfoController {
 	
 	@Autowired
 	OrderService orderService;
+	
+	@Autowired
+	WorkBillService workBillService;
 	
 	@RequestMapping(value = "/queryPageData", method = { RequestMethod.POST })
 	public PageResponse queryPageData(PageRequest ref){
@@ -271,6 +278,76 @@ public class TransitInfoController {
 				response.setResult(ResponseCode.FAILED.getCode());
 			}
 		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/searchProgress", method = { RequestMethod.POST })
+	public BaseResponse searchProgress(@RequestBody OrderDTO ref){
+		BaseResponse response = new BaseResponse();
+		List<OrderProgressResponse> OrderProgressList = new ArrayList<OrderProgressResponse>();
+		OrderDTO order = orderService.queryByOrderNum(ref.getcOrderNum());
+		if(order != null){
+			OrderProgressResponse progress1 = new OrderProgressResponse();
+			progress1.setRecName("");
+			progress1.setTransitInfo("订单生成成功");
+			progress1.setTime(order.getcOrderTime());
+			OrderProgressList.add(progress1);
+			WayBillDTO wayBill = wayBillService.queryByOrderId(order.getcId());
+			if(wayBill != null){
+				OrderProgressResponse progress2 = new OrderProgressResponse();
+				progress2.setRecName("");
+				progress2.setTransitInfo("订单已打包发货，正在运输中");
+				WorkBillDTO workBill = workBillService.queryByOrderId(order.getcId());
+				if(workBill!= null){
+					progress2.setTime(workBill.getcBuildtime());
+				}
+				OrderProgressList.add(progress2);
+				TransitInfoDTO transitInfoDTO = transitInfoService.queryByWayBillId(wayBill.getcId());
+				if(transitInfoDTO != null){
+					//出入库信息
+					List<InOutStorageInfoDTO> inOut = inOutStorageInfoService.queryByTransitInfoId(transitInfoDTO.getcId());
+					Date time = new Date();
+					if(!CollectionUtils.isEmpty(inOut)){
+						for (InOutStorageInfoDTO inOutStorageInfoDTO : inOut) {
+							OrderProgressResponse progress3 = new OrderProgressResponse();
+							progress3.setRecName("");
+							progress3.setTransitInfo(inOutStorageInfoDTO.getcDescription()+"("+ inOutStorageInfoDTO.getcOperation()+")");
+							progress3.setTime(workBill.getcBuildtime());
+							time = workBill.getcBuildtime();
+							OrderProgressList.add(progress3);
+						}
+					}
+					//配送信息
+					DeliveryInfoDTO deliverInfo = deliveryInfoService.selectByPrimaryKey(transitInfoDTO.getcDeliveryInfoId());
+					if(deliverInfo != null){
+						UserDTO user = userService.selectByPrimaryKey(Integer.valueOf(deliverInfo.getcCourierNum()));
+						if(user != null){
+							OrderProgressResponse progress4 = new OrderProgressResponse();
+							progress4.setRecName("");
+							progress4.setTransitInfo("正在配送中：配送员："+user.getcUsername()+",电话："+user.getcTelephone());
+							progress4.setTime(new Date(TimeUtils.addHour(time.getTime(),3)));
+							OrderProgressList.add(progress4);
+						}
+					}
+					//签收信息
+					SignInfoDTO signInfo = signInfoService.selectByPrimaryKey(transitInfoDTO.getcSignInfoId());
+					if(signInfo != null){
+						OrderProgressResponse progress5 = new OrderProgressResponse();
+						progress5.setRecName("");
+						progress5.setTransitInfo("已签收  签收人："+signInfo.getcSignName());
+						progress5.setTime(new Date(TimeUtils.addHour(time.getTime(),6)));
+						OrderProgressList.add(progress5);
+					}
+				}
+			}
+			if(!CollectionUtils.isEmpty(OrderProgressList)){
+				OrderProgressList.get(OrderProgressList.size()-1).setRecName(order.getcRecName());;
+			}
+			
+		}
+		response.setOrderProgress(OrderProgressList);
+		response.setErrorMsg(ResponseCode.SUCCESS.getMsg());
+		response.setResult(ResponseCode.SUCCESS.getCode());
 		return response;
 	}
 }
