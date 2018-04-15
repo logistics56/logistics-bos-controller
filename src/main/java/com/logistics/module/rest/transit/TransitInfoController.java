@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.logistics.module.dto.DeliveryInfoDTO;
 import com.logistics.module.dto.InOutStorageInfoDTO;
+import com.logistics.module.dto.OrderDTO;
 import com.logistics.module.dto.SignInfoDTO;
 import com.logistics.module.dto.TransitInfoDTO;
 import com.logistics.module.dto.UserDTO;
@@ -66,9 +68,25 @@ public class TransitInfoController {
 	public PageResponse queryPageData(PageRequest ref){
 		PageResponse response = new PageResponse();
 		
-		int total = transitInfoService.queryTotal();
+		int transitInfoId =0;
+		if(StringUtils.isEmpty(ref.getSearchStr())){
+			transitInfoId = 0;
+		}else{
+			OrderDTO order = orderService.queryByOrderNum(ref.getSearchStr());
+			if(order != null){
+				WayBillDTO wayBill = wayBillService.queryByOrderId(order.getcId());
+				if(wayBill!= null){
+					TransitInfoDTO transit = transitInfoService.queryByWayBillId(wayBill.getcId());
+					if(transit != null){
+						transitInfoId = transit.getcId();
+					}
+				}
+			}
+		}
+		
+		int total = transitInfoService.queryTotal(transitInfoId);
 		int pageNum = (ref.getPage()-1) * ref.getRows();
-		List<TransitInfoDTO> rows1 = transitInfoService.queryByPage( pageNum, ref.getRows());
+		List<TransitInfoDTO> rows1 = transitInfoService.queryByPage(transitInfoId, pageNum, ref.getRows());
 		List<TransitInfoResponse> rows = new ArrayList<TransitInfoResponse>();
 		if(!CollectionUtils.isEmpty(rows1)){
 			for (TransitInfoDTO transitInfoDTO : rows1) {
