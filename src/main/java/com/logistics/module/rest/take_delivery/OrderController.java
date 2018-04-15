@@ -23,7 +23,6 @@ import com.logistics.module.dto.OrderDTO;
 import com.logistics.module.dto.SubAreaDTO;
 import com.logistics.module.dto.WorkBillDTO;
 import com.logistics.module.enums.ResponseCode;
-import com.logistics.module.request.CourierRequest;
 import com.logistics.module.request.OrderRequest;
 import com.logistics.module.response.OrderResponse;
 import com.logistics.module.response.base.BaseResponse;
