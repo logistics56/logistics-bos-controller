@@ -212,10 +212,10 @@ public class CustomerController {
 		}else if(ref.getSelect() == 0){
 			//根据手机号查询客户
 			List<CustomerDTO> customers = customerService.queryByTelephone(ref.getTelephone2());
-			customers.get(0).setcPassword("");
 			
 			if(!CollectionUtils.isEmpty(customers) ) {
 				if(customers.get(0).getcPassword().equals(ref.getPassword())){
+					customers.get(0).setcPassword("");
 					response.setUser(customers.get(0));
 					List<List<OrderDTO>> orders = orderService.queryAllStatus(ref.getTelephone2());
 					response.setAllOrderStatus(orders);
